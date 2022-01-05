@@ -1,0 +1,10 @@
+{
+    "apps": [
+        {
+            "name": "tc-discord-bot",
+            "script": "dist/app.js",
+            "node_args": ["--enable-source-maps"],
+            "restart_delay": 10000
+        }
+    ]
+}
