@@ -22,7 +22,7 @@ import {
 } from './events';
 import { CustomClient } from './extensions';
 import { Reaction } from './reactions';
-import { JobService, Logger } from './services';
+import { Env, JobService, Logger } from './services';
 import { Trigger } from './triggers';
 
 let Config = require('../config/config.json');
@@ -70,7 +70,7 @@ async function start(): Promise<void> {
     let reactionHandler = new ReactionHandler(reactions);
 
     let bot = new Bot(
-        Config.client.token,
+        Env.token,
         client,
         guildJoinHandler,
         guildLeaveHandler,
@@ -100,9 +100,9 @@ async function registerCommands(commands: Command[]): Promise<void> {
     );
 
     try {
-        let rest = new REST({ version: '9' }).setToken(Config.client.token);
-        await rest.put(Routes.applicationCommands(Config.client.id), { body: [] });
-        await rest.put(Routes.applicationCommands(Config.client.id), { body: cmdDatas });
+        let rest = new REST({ version: '9' }).setToken(Env.token);
+        await rest.put(Routes.applicationCommands(Env.appId), { body: [] });
+        await rest.put(Routes.applicationCommands(Env.appId), { body: cmdDatas });
     } catch (error) {
         Logger.error(Logs.error.commandsRegistering, error);
         return;

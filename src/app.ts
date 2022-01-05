@@ -5,7 +5,7 @@ import { Api } from './api';
 import { GuildsController, RootController, ShardsController } from './controllers';
 import { UpdateServerCountJob } from './jobs';
 import { Manager } from './manager';
-import { HttpService, JobService, Logger, MasterApiService } from './services';
+import { Env, HttpService, JobService, Logger, MasterApiService } from './services';
 import { MathUtils, ShardUtils } from './utils';
 
 let Config = require('../config/config.json');
@@ -29,11 +29,11 @@ async function start(): Promise<void> {
         if (Config.clustering.enabled) {
             let resBody = await masterApiService.login();
             shardList = resBody.shardList;
-            let requiredShards = await ShardUtils.requiredShardCount(Config.client.token);
+            let requiredShards = await ShardUtils.requiredShardCount(Env.token);
             totalShards = Math.max(requiredShards, resBody.totalShards);
         } else {
             let recommendedShards = await ShardUtils.recommendedShardCount(
-                Config.client.token,
+                Env.token,
                 Config.sharding.serversPerShard
             );
             shardList = MathUtils.range(0, recommendedShards);
@@ -50,7 +50,7 @@ async function start(): Promise<void> {
     }
 
     let shardManager = new ShardingManager('dist/start.js', {
-        token: Config.client.token,
+        token: Env.token,
         mode: Debug.override.shardMode.enabled ? Debug.override.shardMode.value : 'worker',
         respawn: true,
         totalShards,

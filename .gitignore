@@ -2,8 +2,6 @@
 # Custom
 # =====================================================
 dist
-/**/config/**/*.json
-!/**/config/**/*.example.json
 
 # =====================================================
 # Node.js
@@ -83,6 +81,7 @@ web_modules/
 .env
 .env.test
 .env.production
+.env.sh
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
