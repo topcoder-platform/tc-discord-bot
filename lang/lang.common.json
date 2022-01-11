@@ -1,6 +1,6 @@
 {
     "bot": {
-        "name": "Topbot",
+        "name": "Topcoder-Bot",
         "author": "[kiril.kartunov]"
     },
     "commands": {
@@ -22,13 +22,13 @@
     },
     "links": {
         "author": "https://www.topcoder.com/members/kiril.kartunov",
-        "docs": "https://top.gg/",
-        "donate": "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=EW389DYYSS4FC",
+        "docs": "https://github.com/topcoder-platform/tc-discord-bot",
+        "donate": "https://github.com/topcoder-platform/tc-discord-bot",
         "invite": "https://discord.com/",
-        "source": "https://github.com/",
-        "stream": "https://www.twitch.tv/novakevin",
+        "source": "https://github.com/topcoder-platform/tc-discord-bot",
+        "stream": "https://www.twitch.tv/topcoder_official",
         "support": "https://support.discord.com/",
-        "template": "https://github.com/KevinNovak/Discord-Bot-TypeScript-Template",
+        "template": "https://github.com/topcoder-platform/tc-discord-bot",
         "vote": "https://top.gg/"
     }
 }
