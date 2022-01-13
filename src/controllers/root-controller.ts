@@ -30,7 +30,7 @@ export class RootController implements Controller {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    content: `Hey @here, we have published a new article on Thrive. Have a look at it https://www.topcoder.com/thrive/articles/${req.body.fields.slug['en-US']}`
+                    content: `Hey, we have published a new article on Thrive. Have a look at it https://www.topcoder.com/thrive/articles/${req.body.fields.slug['en-US']}`
                 }),
             });
         }
