@@ -11,6 +11,7 @@ import {
     JokeCommand,
     LinkCommand,
     TranslateCommand,
+    VerifyCommand,
 } from './commands';
 import {
     CommandHandler,
@@ -48,6 +49,7 @@ async function start(): Promise<void> {
         new LinkCommand(),
         new TranslateCommand(),
         new JokeCommand(),
+        new VerifyCommand(),
         // TODO: Add new commands here
     ].sort((a, b) => (a.metadata.name > b.metadata.name ? 1 : -1));
 

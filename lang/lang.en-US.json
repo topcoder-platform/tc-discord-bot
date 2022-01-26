@@ -186,7 +186,7 @@
             "translators": "[TranslatorName#1234](https://github.com/)"
         },
         "bot": {
-            "description": "{{REF:links.templateEmbed}} is set up to serve the community. Decepti-Topbot is new generation bot that never gets late to work and likes to answer questions, play games and tell around dummy robot jokes :)"
+            "description": "{{REF:links.templateEmbed}} is set up to serve the community. TC-101 is our first generation bot that never gets late to work and likes to answer questions, play games and tell around dummy robot jokes :)"
         },
         "commandDescs": {
             "dev": "View developer info.",

@@ -68,7 +68,7 @@ async function start(): Promise<void> {
     // API
     let guildsController = new GuildsController(shardManager);
     let shardsController = new ShardsController(shardManager);
-    let rootController = new RootController();
+    let rootController = new RootController(shardManager);
     let api = new Api([guildsController, shardsController, rootController]);
 
     // Start

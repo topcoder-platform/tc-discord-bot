@@ -5,3 +5,4 @@ export { InfoCommand } from './info-command';
 export { LinkCommand } from './link-command';
 export { TranslateCommand } from './translate-command';
 export { JokeCommand } from './joke';
+export { VerifyCommand } from './verify';

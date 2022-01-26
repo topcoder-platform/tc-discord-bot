@@ -65,5 +65,9 @@
         "rateLimit": {
             "minTimeout": 30
         }
+    },
+    "UTMs": {
+        "utm_source": "discord",
+        "utm_medium": "social"
     }
 }

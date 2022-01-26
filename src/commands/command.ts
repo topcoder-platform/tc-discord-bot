@@ -3,6 +3,7 @@ import { EventData } from '../models/internal-models';
 
 export interface Command {
     metadata: ApplicationCommandData;
+    ephemeral?: boolean;
     requireDev: boolean;
     requireGuild: boolean;
     requireClientPerms: PermissionString[];

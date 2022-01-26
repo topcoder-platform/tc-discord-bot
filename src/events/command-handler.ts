@@ -16,7 +16,7 @@ export class CommandHandler implements EventHandler {
         Config.rateLimiting.commands.interval * 1000
     );
 
-    constructor(public commands: Command[]) {}
+    constructor(public commands: Command[]) { }
 
     public async process(intr: CommandInteraction): Promise<void> {
         // Check if user is rate limited
@@ -24,10 +24,6 @@ export class CommandHandler implements EventHandler {
         if (limited) {
             return;
         }
-
-        // Defer interaction
-        // NOTE: Anything after this point we should be responding to the interaction
-        await intr.deferReply();
 
         // TODO: Get data from database
         let data = new EventData();
@@ -43,6 +39,12 @@ export class CommandHandler implements EventHandler {
             );
             return;
         }
+
+        // Defer interaction
+        // NOTE: Anything after this point we should be responding to the interaction
+        await intr.deferReply({
+            ephemeral: command.ephemeral ? true : false
+        });
 
         try {
             // Check if interaction passes command checks
@@ -60,19 +62,19 @@ export class CommandHandler implements EventHandler {
                     intr.channel instanceof NewsChannel ||
                     intr.channel instanceof ThreadChannel
                     ? Logs.error.commandGuild
-                          .replaceAll('{INTERACTION_ID}', intr.id)
-                          .replaceAll('{COMMAND_NAME}', command.metadata.name)
-                          .replaceAll('{USER_TAG}', intr.user.tag)
-                          .replaceAll('{USER_ID}', intr.user.id)
-                          .replaceAll('{CHANNEL_NAME}', intr.channel.name)
-                          .replaceAll('{CHANNEL_ID}', intr.channel.id)
-                          .replaceAll('{GUILD_NAME}', intr.guild?.name)
-                          .replaceAll('{GUILD_ID}', intr.guild?.id)
+                        .replaceAll('{INTERACTION_ID}', intr.id)
+                        .replaceAll('{COMMAND_NAME}', command.metadata.name)
+                        .replaceAll('{USER_TAG}', intr.user.tag)
+                        .replaceAll('{USER_ID}', intr.user.id)
+                        .replaceAll('{CHANNEL_NAME}', intr.channel.name)
+                        .replaceAll('{CHANNEL_ID}', intr.channel.id)
+                        .replaceAll('{GUILD_NAME}', intr.guild?.name)
+                        .replaceAll('{GUILD_ID}', intr.guild?.id)
                     : Logs.error.commandOther
-                          .replaceAll('{INTERACTION_ID}', intr.id)
-                          .replaceAll('{COMMAND_NAME}', command.metadata.name)
-                          .replaceAll('{USER_TAG}', intr.user.tag)
-                          .replaceAll('{USER_ID}', intr.user.id),
+                        .replaceAll('{INTERACTION_ID}', intr.id)
+                        .replaceAll('{COMMAND_NAME}', command.metadata.name)
+                        .replaceAll('{USER_TAG}', intr.user.tag)
+                        .replaceAll('{USER_ID}', intr.user.id),
                 error
             );
         }
