@@ -9,6 +9,7 @@ import {
     HelpCommand,
     InfoCommand,
     JokeCommand,
+    LeaderboardCommand,
     LinkCommand,
     TranslateCommand,
     VerifyCommand,
@@ -50,6 +51,7 @@ async function start(): Promise<void> {
         new TranslateCommand(),
         new JokeCommand(),
         new VerifyCommand(),
+        new LeaderboardCommand(),
         // TODO: Add new commands here
     ].sort((a, b) => (a.metadata.name > b.metadata.name ? 1 : -1));
 

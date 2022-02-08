@@ -11,5 +11,7 @@ export const Env = {
     serverID: process.env.SERVER_ID ?? '',
     verifyRoleID: process.env.VERIFY_ROLE_ID ?? '',
     guestRoleID: process.env.GUEST_ROLE_ID ?? '',
-    verifySuccessRedirect: process.env.VERIFY_REDIRECT_URL ?? ''
+    verifySuccessRedirect: process.env.VERIFY_REDIRECT_URL ?? '',
+    contentfulSpaceID: process.env.CONTENTFUL_SPACE_ID ?? '',
+    contentfulCDNKey: process.env.CONTENTFUL_CDN_KEY ?? ''
 }
