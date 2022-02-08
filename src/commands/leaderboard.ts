@@ -23,7 +23,7 @@ const client = contentful.createClient({
 export class LeaderboardCommand implements Command {
     public metadata: ApplicationCommandData = {
         name: 'leaderboard',
-        description: 'View current TCO Leaderboards.',
+        description: 'View current TCO leaderboards.',
         options: [
             {
                 name: 'leaderboard',
@@ -103,7 +103,6 @@ export class LeaderboardCommand implements Command {
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle(`${entry.stageText} - ${entry.selectText} ${entry.titleText}`)
-            .setDescription('Full leaderboard link')
             .setURL(`${entry.leaderboardUrl}&${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'discord-to-platform' })}`)
             .addFields(fields)
             .setImage('https://images.ctfassets.net/b5f1djy59z3a/5IJ8vYa6HHJV2aMpl83eyG/5ca3e0a83792ec0ad0a588bcc63b1a9d/D561D764-FFF8-43DF-AA52-660A42A3A001.svg?fm=png')
