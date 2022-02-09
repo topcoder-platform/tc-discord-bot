@@ -7,3 +7,4 @@ export { TranslateCommand } from './translate-command';
 export { JokeCommand } from './joke';
 export { VerifyCommand } from './verify';
 export { LeaderboardCommand } from './leaderboard';
+export { HandleCheckCommand } from './handle-check';

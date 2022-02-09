@@ -6,6 +6,7 @@ import { Bot } from './bot';
 import {
     Command,
     DevCommand,
+    HandleCheckCommand,
     HelpCommand,
     InfoCommand,
     JokeCommand,
@@ -52,6 +53,7 @@ async function start(): Promise<void> {
         new JokeCommand(),
         new VerifyCommand(),
         new LeaderboardCommand(),
+        new HandleCheckCommand(),
         // TODO: Add new commands here
     ].sort((a, b) => (a.metadata.name > b.metadata.name ? 1 : -1));
 
