@@ -49,8 +49,7 @@ export class HandleCheckCommand implements Command {
         } else {
             await MessageUtils.sendIntr(intr, `SUCCESS!
 Username "${username}" is valid Topcoder handle.
-Current status: ${apiData.status}
-https://topcoder.com/members/${username}`);
+Current status: ${apiData.status}`);
         }
     }
 }
