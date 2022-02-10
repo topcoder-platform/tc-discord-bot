@@ -34,7 +34,7 @@ export class HandleCheckCommand implements Command {
 
     public async execute(intr: CommandInteraction, data: EventData): Promise<void> {
         const channelId = intr.channelId;
-        if (channelId !== '939234143785590805') {
+        if (channelId !== '925627019700600862') {
             await MessageUtils.sendIntr(intr, 'This is an admin command.');
             return;
         }
