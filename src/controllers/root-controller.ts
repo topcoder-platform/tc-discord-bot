@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import qs from 'qs';
 
-import { Env } from '../services';
+import { Env, verifyToken } from '../services';
 import { Controller } from './controller';
 let Config = require('../../config/config.json');
 
@@ -19,6 +19,7 @@ export class RootController implements Controller {
         this.router.get('/', (req, res) => this.get(req, res));
         this.router.post('/webhooks/thrive', (req, res) => this.thriveWebhook(req, res));
         this.router.get('/webhooks/verify-user', (req, res) => this.verifyUser(req, res));
+        this.router.get('/webhooks/verify-token', (req, res) => this.verifyToken(req, res));
     }
 
     private async get(req: Request, res: Response): Promise<void> {
@@ -77,6 +78,28 @@ export class RootController implements Controller {
         } catch (e) {
             res.status(500).json(e);
             throw e;
+        }
+    }
+
+    private async verifyToken(req: Request, res: Response): Promise<void> {
+        const token = req.query.token;
+        const validIssuers = Config.validIssuers;
+        if (token) {
+            try {
+                verifyToken(token, validIssuers, (err, decodedToken) => {
+                    if (err) {
+                        res.status(400).send(`Bad Request: ${err}`);
+                    } else {
+                        res.send(decodedToken);
+                    }
+                });
+            } catch (e) {
+                res.status(500).send('error: ' + e.message);
+            };
+        } else {
+            res
+                .status(400)
+                .send('Bad Request: expecting query param like - ?token=<token>');
         }
     }
 }

@@ -4,3 +4,4 @@ export { Lang } from './lang';
 export { Logger } from './logger';
 export { MasterApiService } from './master-api-service';
 export { Env } from './env';
+export { verifyToken } from './verifyToken';

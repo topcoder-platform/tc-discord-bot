@@ -6,7 +6,8 @@
             "GUILD_MESSAGES",
             "GUILD_MESSAGE_REACTIONS",
             "DIRECT_MESSAGES",
-            "DIRECT_MESSAGE_REACTIONS"
+            "DIRECT_MESSAGE_REACTIONS",
+            "GUILD_MEMBERS"
         ],
         "partials": ["MESSAGE", "CHANNEL", "REACTION"],
         "caches": {
@@ -44,6 +45,10 @@
         "updateServerCount": {
             "schedule": "0 */10 * * * *",
             "log": false
+        },
+        "membersCheck": {
+            "schedule": "0 */1 * * * *",
+            "log": false
         }
     },
     "rateLimiting": {
@@ -69,5 +74,9 @@
     "UTMs": {
         "utm_source": "discord",
         "utm_medium": "social"
-    }
+    },
+    "validIssuers": [
+        "https://auth.topcoder-dev.com/",
+        "https://auth.topcoder.com/"
+    ]
 }
