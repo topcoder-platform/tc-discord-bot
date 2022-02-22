@@ -57,7 +57,7 @@ export class MembersCheckJob implements Job {
                     const apiRsp = await this.httpService.get(`https://api.topcoder.com/v5/members/${(m.nickname || m.user.username)}`, '');
                     const apiData = await apiRsp.json();
                     uM.checkHandle = m.nickname || m.user.username;
-                    uM.checkValid = apiRsp.status === 200;
+                    uM.checkValidTC = apiRsp.status === 200;
                     // if (apiRsp.status === 200 && !uM.tcHandle) {
                     //     uM.tcHandle = apiData.handle;
                     //     uM.verifyDate = new Date();
