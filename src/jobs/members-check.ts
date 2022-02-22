@@ -50,7 +50,7 @@ export class MembersCheckJob implements Job {
             try {
                 const uM = await DiscordUserModel.findOneAndUpdate(
                     { discordID: m.user.id },
-                    { nickname: m.nickname, username: m.user.username },
+                    { nickname: m.nickname, username: m.user.username, discriminator: m.user.discriminator },
                     { new: true, upsert: true }
                 )
                 if (!uM.checkHandle || uM.checkHandle !== (m.nickname || m.user.username)) {
@@ -58,10 +58,10 @@ export class MembersCheckJob implements Job {
                     const apiData = await apiRsp.json();
                     uM.checkHandle = m.nickname || m.user.username;
                     uM.checkValid = apiRsp.status === 200;
-                    if (apiRsp.status === 200 && !uM.tcHandle) {
-                        uM.tcHandle = apiData.handle;
-                        uM.verifyDate = new Date();
-                    }
+                    // if (apiRsp.status === 200 && !uM.tcHandle) {
+                    //     uM.tcHandle = apiData.handle;
+                    //     uM.verifyDate = new Date();
+                    // }
                     await uM.save();
                 }
             } catch (error) {
