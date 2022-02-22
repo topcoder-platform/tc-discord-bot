@@ -3,7 +3,7 @@ import 'reflect-metadata';
 
 import { Api } from './api';
 import { GuildsController, RootController, ShardsController } from './controllers';
-import { UpdateServerCountJob } from './jobs';
+import { MembersCheckJob, UpdateServerCountJob } from './jobs';
 import { Manager } from './manager';
 import { Env, HttpService, JobService, Logger, MasterApiService } from './services';
 import { MathUtils, ShardUtils } from './utils';
@@ -60,6 +60,7 @@ async function start(): Promise<void> {
     // Jobs
     let jobs = [
         Config.clustering.enabled ? undefined : new UpdateServerCountJob(shardManager, httpService),
+        new MembersCheckJob(shardManager, httpService)
     ].filter(Boolean);
     let jobService = new JobService(jobs);
 
