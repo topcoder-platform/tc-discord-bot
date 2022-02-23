@@ -26,7 +26,7 @@ export class VerifyCommand implements Command {
                 userId: intr.user.id
             }
         }, Env.token);
-        const retUrl = encodeURIComponent(`${Env.discordVerifyUserWebhook}?token=${token}`);
+        const retUrl = encodeURIComponent(`${Env.discordVerifyUserWebhook}?discord=${token}`);
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle('CLICK HERE TO VERIFY')

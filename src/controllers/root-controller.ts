@@ -52,7 +52,7 @@ export class RootController implements Controller {
      */
     private async verifyUser(req: Request, res: Response): Promise<void> {
         try {
-            const decoded: any = jwt.verify(req.query.token as string, Env.token);
+            const decoded: any = jwt.verify(req.query.discord as string, Env.token);
             const resOps = await this.shardManager.broadcastEval(
                 async (client, context) => {
                     const guild = client.guilds.cache.get(context.serverID);
