@@ -16,10 +16,11 @@ export class RootController implements Controller {
     constructor(private shardManager: ShardingManager) { }
 
     public register(): void {
-        this.router.get('/', (req, res) => this.get(req, res));
+        this.router.get('/health', (req, res) => this.get(req, res)); // health check
         this.router.post('/webhooks/thrive', (req, res) => this.thriveWebhook(req, res));
         this.router.get('/webhooks/verify-user', (req, res) => this.verifyUser(req, res));
-        this.router.get('/webhooks/verify-token', (req, res) => this.verifyToken(req, res));
+        this.router.get('/webhooks/register-commands', (req, res) => this.registerCommands(req, res));
+        // this.router.get('/webhooks/verify-token', (req, res) => this.verifyToken(req, res)); // disable - was used for auth update
     }
 
     private async get(req: Request, res: Response): Promise<void> {
@@ -52,54 +53,76 @@ export class RootController implements Controller {
      */
     private async verifyUser(req: Request, res: Response): Promise<void> {
         try {
-            const decoded: any = jwt.verify(req.query.token as string, Env.token);
-            const resOps = await this.shardManager.broadcastEval(
-                async (client, context) => {
-                    const guild = client.guilds.cache.get(context.serverID);
-                    if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
-                    const member = await guild.members.fetch(context.userId);
-                    if (member && member.roles.cache.has(context.roleId)) {
-                        return { success: true, msg: 'Alredy have the role' };
-                    } else if (member) {
-                        await member.roles.add(context.roleId);
-                        if (member.roles.cache.has(context.guestRoleId)) {
-                            await member.roles.remove(context.guestRoleId);
+            const discord = req.query.discord;
+            const token = req.query.token;
+            const decodedDiscord: any = jwt.verify(discord as string, Env.token);
+            // verfy token comes from TC 4real
+            verifyToken(token, Config.validIssuers, async (err: any, decodedToken: any) => {
+                if (err) {
+                    res.status(400).send(`Bad Request: ${err}`);
+                    return;
+                } else {
+                    console.log('verifyUser', decodedDiscord, decodedToken);
+                    const resOps = await this.shardManager.broadcastEval(
+                        async (client, context) => {
+                            const guild = client.guilds.cache.get(context.serverID);
+                            if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
+                            const member = await guild.members.fetch(context.userId);
+                            if (member && member.roles.cache.has(context.roleId)) {
+                                return { success: true, msg: 'Alredy have the role' };
+                            } else if (member) {
+                                await member.roles.add(context.roleId);
+                                if (member.roles.cache.has(context.guestRoleId)) {
+                                    await member.roles.remove(context.guestRoleId);
+                                }
+                                return { success: true };
+                            } else {
+                                return { success: false, erorr: 'can not find member by ID' };
+                            }
+                        },
+                        {
+                            context: {
+                                serverID: Env.serverID, userId: decodedDiscord.data.userId, roleId: Env.verifyRoleID, guestRoleId: Env.guestRoleID
+                            }
                         }
-                        return { success: true };
-                    } else {
-                        return { success: false, erorr: 'can not find member by ID' };
-                    }
-                },
-                { context: { serverID: Env.serverID, userId: decoded.data.userId, roleId: Env.verifyRoleID, guestRoleId: Env.guestRoleID } }
-            );
-            if (resOps[0].success) {
-                res.redirect(Env.verifySuccessRedirect);
-            } else res.json(resOps);
+                    );
+                    if (resOps[0].success) {
+                        console.log('decodeOps', decodedDiscord, decodedToken);
+                        res.redirect(Env.verifySuccessRedirect);
+                    } else res.json(resOps);
+                }
+            });
         } catch (e) {
             res.status(500).json(e);
             throw e;
         }
     }
 
-    private async verifyToken(req: Request, res: Response): Promise<void> {
-        const token = req.query.token;
-        const validIssuers = Config.validIssuers;
-        if (token) {
-            try {
-                verifyToken(token, validIssuers, (err, decodedToken) => {
-                    if (err) {
-                        res.status(400).send(`Bad Request: ${err}`);
-                    } else {
-                        res.send(decodedToken);
-                    }
-                });
-            } catch (e) {
-                res.status(500).send('error: ' + e.message);
-            };
-        } else {
-            res
-                .status(400)
-                .send('Bad Request: expecting query param like - ?token=<token>');
-        }
+    private async registerCommands(req: Request, res: Response): Promise<void> {
+        // TODO
     }
+
+    /**
+     * Verify a TC jwt token for authenticity
+     */
+    // private async verifyToken(req: Request, res: Response): Promise<void> {
+    //     const token = req.query.token;
+    //     if (token) {
+    //         try {
+    //             verifyToken(token, Config.validIssuers, (err: any, decodedToken: any) => {
+    //                 if (err) {
+    //                     res.status(400).send(`Bad Request: ${err}`);
+    //                 } else {
+    //                     res.send(decodedToken);
+    //                 }
+    //             });
+    //         } catch (e) {
+    //             res.status(500).send('error: ' + e.message);
+    //         };
+    //     } else {
+    //         res
+    //             .status(400)
+    //             .send('Bad Request: expecting query param like - ?token=<token>');
+    //     }
+    // }
 }

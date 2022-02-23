@@ -60,7 +60,7 @@ async function start(): Promise<void> {
     // Jobs
     let jobs = [
         Config.clustering.enabled ? undefined : new UpdateServerCountJob(shardManager, httpService),
-        // new MembersCheckJob(shardManager, httpService)
+        // new MembersCheckJob(shardManager, httpService) will enable later...
     ].filter(Boolean);
     let jobService = new JobService(jobs);
 
