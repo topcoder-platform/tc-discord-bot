@@ -1,7 +1,7 @@
 FROM node:15
 
 # Create app directory
-WORKDIR /app
+WORKDIR /tc-discord-bot
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
