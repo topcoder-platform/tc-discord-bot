@@ -10,7 +10,7 @@ import { Controller } from './controller';
 let Config = require('../../config/config.json');
 
 export class RootController implements Controller {
-    public path = '/';
+    public path = '/v5/discord-bot';
     public router: Router = router();
 
     constructor(private shardManager: ShardingManager) { }
