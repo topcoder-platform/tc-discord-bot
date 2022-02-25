@@ -16,5 +16,8 @@ export const Env = {
     contentfulCDNKey: process.env.CONTENTFUL_CDN_KEY ?? '',
     postgreUser: process.env.POSTGRE_SQL_USER ?? '',
     postgrePass: process.env.POSTGRE_SQL_PASS ?? '',
-    postgreDB: process.env.POSTGRE_SQL_DATABASE ?? ''
+    postgreDB: process.env.POSTGRE_SQL_DATABASE ?? '',
+    authSecret: process.env.AUTH_SECRET ?? '',
+    validIssuers: process.env.VALID_ISSUERS ?? '',
+    nodeEnv: process.env.NODE_ENV ?? ''
 }

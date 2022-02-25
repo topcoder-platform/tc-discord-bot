@@ -5,6 +5,7 @@ import { Api } from './api';
 import { GuildsController, RootController, ShardsController } from './controllers';
 import { MembersCheckJob, UpdateServerCountJob } from './jobs';
 import { Manager } from './manager';
+import db from './models/db';
 import { Env, HttpService, JobService, Logger, MasterApiService } from './services';
 import { MathUtils, ShardUtils } from './utils';
 
@@ -14,6 +15,10 @@ let Logs = require('../lang/logs.json');
 
 async function start(): Promise<void> {
     Logger.info(Logs.info.appStarted);
+
+    // DB
+    await db.sequelize.sync();
+    Logger.info('DB models were synchronized successfully.');
 
     // Dependencies
     let httpService = new HttpService();

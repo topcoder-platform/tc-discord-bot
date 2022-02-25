@@ -78,5 +78,8 @@
     "validIssuers": [
         "https://auth.topcoder-dev.com/",
         "https://auth.topcoder.com/"
+    ],
+    "DiscordManagePermissionRoles": [
+        "discord-manager"
     ]
 }
