@@ -77,7 +77,7 @@ export class RootController implements Controller {
             const token = req.query.token;
             const decodedDiscord: any = jwt.verify(discord as string, Env.token);
             // verfy token comes from TC 4real
-            verifyToken(token, Config.validIssuers, async (err: any, decodedToken: any) => {
+            verifyToken(token, Env.validIssuers, async (err: any, decodedToken: any) => {
                 if (err) {
                     res.status(400).send(`Bad Request: ${err}`);
                     return;
