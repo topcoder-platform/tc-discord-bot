@@ -1,4 +1,4 @@
-FROM node:15
+FROM node:16.6
 
 # Create app directory
 WORKDIR /tc-discord-bot
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Expose ports
-EXPOSE 8080
+EXPOSE 8081
 
 # Run the application
 CMD [ "npm", "run", "start:shard" ]
