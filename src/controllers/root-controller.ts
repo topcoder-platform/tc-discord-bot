@@ -40,7 +40,7 @@ export class RootController implements Controller {
         this.router.post('/webhooks/thrive', (req, res) => this.thriveWebhook(req, res));
         this.router.get('/webhooks/verify-user', (req, res) => this.verifyUser(req, res));
         this.router.get('/register-commands', (req, res, next) => authenticator(authenticatorOptions)(req, res, next), (req, res) => this.registerCommands(req, res));
-        this.router.get('/members', (req, res, next) => authenticator(authenticatorOptions)(req, res, next), (req, res) => this.getMembers(req, res));
+        this.router.post('/members', (req, res, next) => authenticator(authenticatorOptions)(req, res, next), (req, res) => this.getMembers(req, res));
     }
 
     private async get(req: Request, res: Response): Promise<void> {
@@ -92,11 +92,14 @@ export class RootController implements Controller {
 
 Please rename your server nickname to your Topcoder handle.
 In order to do that, click the dropdown arrow ⬇next to "Topcoder" in the top-left of your screen and click "Edit Server Profile". There you can change your nickname and your photo (if you wish).` : ''}`;
+                            // Set member nickname to TC handle
+                            await member.setNickname(context.decodedToken.nickname);
+                            // member roles
                             if (member && member.roles.cache.has(context.roleId)) {
                                 await member.send(userMsg);
                                 return { success: true, member };
                             } else if (member) {
-                                await member.roles.add(context.roleId);
+                                await member.roles.add([context.roleId]);
                                 if (member.roles.cache.has(context.guestRoleId)) {
                                     await member.roles.remove(context.guestRoleId);
                                 }
