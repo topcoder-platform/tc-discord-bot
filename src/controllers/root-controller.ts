@@ -95,11 +95,12 @@ In order to do that, click the dropdown arrow ⬇next to "Topcoder" in the top-l
                             // Set member nickname to TC handle
                             await member.setNickname(context.decodedToken.nickname);
                             // member roles
-                            if (member && member.roles.cache.has(context.roleId)) {
+                            const roles = context.roleId.split(',');
+                            if (member && roles.every(r => member.roles.cache.has(r))) {
                                 await member.send(userMsg);
                                 return { success: true, member };
                             } else if (member) {
-                                await member.roles.add(context.roleId.split(','));
+                                await member.roles.add(roles);
                                 if (member.roles.cache.has(context.guestRoleId)) {
                                     await member.roles.remove(context.guestRoleId);
                                 }
