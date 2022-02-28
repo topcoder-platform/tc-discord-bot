@@ -99,7 +99,7 @@ In order to do that, click the dropdown arrow ⬇next to "Topcoder" in the top-l
                                 await member.send(userMsg);
                                 return { success: true, member };
                             } else if (member) {
-                                await member.roles.add([context.roleId]);
+                                await member.roles.add(context.roleId.split(','));
                                 if (member.roles.cache.has(context.guestRoleId)) {
                                     await member.roles.remove(context.guestRoleId);
                                 }
