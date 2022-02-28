@@ -88,10 +88,11 @@ export class RootController implements Controller {
                             if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
                             const member = await guild.members.fetch(context.userId);
                             const isValidTC = (member.nickname || member.user.username).toLowerCase() === context.decodedToken.nickname.toLowerCase();
-                            const userMsg = `Hey @${member.user.username}, thank You for verifying with your TC account!${!isValidTC ? `
+                            const userMsg = `Hey @${member.user.username}, thank you for verifying your Topcoder account with us!
 
-Please rename your server nickname to your Topcoder handle.
-In order to do that, click the dropdown arrow ⬇next to "Topcoder" in the top-left of your screen and click "Edit Server Profile". There you can change your nickname and your photo (if you wish).` : ''}`;
+In order for everyone in our Discord server to know who you are and so that you know who everyone else is, we have updated your Discord nickname in our server only to match your Topcoder username.  By having your Discord nickname match your Topcoder handle, you will be granted with the "Verified" role and badge, which allows you to view all of our channels.  If at any time you decide to change your nickname on our server to anything else, we will be forced to revoke your "Verified" role, in which case you will lose access to our channels and will have to reverify.
+
+We're glad to have you join us. Welcome!`;
                             // Set member nickname to TC handle
                             await member.setNickname(context.decodedToken.nickname);
                             // member roles
