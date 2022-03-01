@@ -17,7 +17,7 @@ async function start(): Promise<void> {
     Logger.info(Logs.info.appStarted);
 
     // DB
-    await db.sequelize.sync({ force: true });
+    await db.sequelize.sync();
     Logger.info('DB models were synchronized successfully.');
 
     // Dependencies
