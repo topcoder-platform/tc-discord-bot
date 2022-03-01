@@ -1,7 +1,7 @@
 import { ApplicationCommandData, CommandInteraction, MessageEmbed, PermissionString } from 'discord.js';
 import jwt from 'jsonwebtoken';
 import qs from 'qs';
-
+import db from '../models/db';
 import { EventData } from '../models/internal-models';
 import { Env } from '../services/env';
 import { MessageUtils } from '../utils';
@@ -20,6 +20,18 @@ export class VerifyCommand implements Command {
     public requireUserPerms: PermissionString[] = [];
 
     public async execute(intr: CommandInteraction, data: EventData): Promise<void> {
+        // Exclude bots from verify
+        if (intr.user.bot) {
+            await MessageUtils.sendIntr(intr, 'Bots can\'t verify');
+            return;
+        }
+        // Check if member alredy verified?
+        const m = await db.Member.findByPk(intr.user.id);
+        if (m !== null) {
+            await MessageUtils.sendIntr(intr, `Hey @${intr.user.username}, you already verified yorself. Thank You!`);
+            return;
+        }
+        // If here procceed with verification
         const token = jwt.sign({
             exp: Math.floor(Date.now() / 1000) + (60 * 5), // 5min
             data: {
@@ -30,7 +42,7 @@ export class VerifyCommand implements Command {
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle('CLICK HERE TO VERIFY')
-            .setURL(`https://accounts-auth0.topcoder.com/member/registration?retUrl=${retUrl}&mode=signIn&${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'verify-members' })}`)
+            .setURL(`https://accounts-auth0.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/member/registration?retUrl=${retUrl}&mode=signIn&${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'verify-members' })}`)
             .setDescription('You will be sent to Topcoder authentication page where you need to either login or register. Once done, we will send you back to discord and complete the verification process.');
 
         await MessageUtils.sendIntr(intr, embed);

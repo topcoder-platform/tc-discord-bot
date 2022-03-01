@@ -3,7 +3,13 @@ import jwksRSA from 'jwks-rsa';
 
 const jwksClients = {}; // in global scope
 
-export function verifyToken(token: any, validIssuers: string[], callback: any): void {
+/**
+ * Verify is jwt token is TC valid token or fake
+ * @param token The TC jwt to verify
+ * @param validIssuers Array of sign urls strings
+ * @param callback function to invoke with result
+ */
+export function verifyToken(token: any, validIssuers: string, callback: any): void {
     // Decode it first
     let decodedToken: any = jwt.decode(token, { complete: true });
 

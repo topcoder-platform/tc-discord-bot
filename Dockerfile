@@ -1,7 +1,7 @@
-FROM node:15
+FROM node:16.6
 
 # Create app directory
-WORKDIR /app
+WORKDIR /tc-discord-bot
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Expose ports
-EXPOSE 8080
+EXPOSE 8081
 
 # Run the application
-CMD [ "node", "dist/app.js" ]
+CMD [ "npm", "run", "start:shard" ]

@@ -14,7 +14,10 @@ export const Env = {
     verifySuccessRedirect: process.env.VERIFY_REDIRECT_URL ?? '',
     contentfulSpaceID: process.env.CONTENTFUL_SPACE_ID ?? '',
     contentfulCDNKey: process.env.CONTENTFUL_CDN_KEY ?? '',
-    mongoUser: process.env.MONGO_ATLAS_USER ?? '',
-    mongoPass: process.env.MONGO_ATLAS_PASS ?? '',
-    mongoDB: process.env.MONGO_ATLAS_DB ?? ''
+    postgreUser: process.env.POSTGRE_SQL_USER ?? '',
+    postgrePass: process.env.POSTGRE_SQL_PASS ?? '',
+    postgreDB: process.env.POSTGRE_SQL_DATABASE ?? '',
+    authSecret: process.env.AUTH_SECRET ?? '',
+    validIssuers: process.env.VALID_ISSUERS ?? '',
+    nodeEnv: process.env.NODE_ENV ?? ''
 }
