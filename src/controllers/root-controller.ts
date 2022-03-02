@@ -52,6 +52,11 @@ export class RootController implements Controller {
      * Acts upon Contentful webhooks
      */
     private async thriveWebhook(req: Request, res: Response): Promise<void> {
+        // check for valid authorization
+        if (!req.headers.authorization || req.headers.authorization !== Env.serverID) {
+            res.status(403).json({ error: 'Not valid authorization provided' });
+            return;
+        }
         if (req.body.sys.revision === 1) {
             await fetch(Env.discordThriveWebhook, {
                 method: 'post',
