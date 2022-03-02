@@ -2,17 +2,13 @@ import { ApplicationCommandOptionType } from 'discord-api-types';
 import {
     ApplicationCommandData,
     CommandInteraction,
-    MessageEmbed,
     PermissionString,
 } from 'discord.js';
-import qs from 'qs';
 
 import { EventData } from '../models/internal-models';
-import { Env } from '../services/env';
 import { HttpService } from '../services/http-service';
 import { MessageUtils } from '../utils';
 import { Command } from './command';
-let Config = require('../../config/config.json');
 
 export class HandleCheckCommand implements Command {
     public metadata: ApplicationCommandData = {
