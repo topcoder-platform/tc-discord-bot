@@ -14,14 +14,12 @@ import {
     HandleCheckCommand,
     HelpCommand,
     InfoCommand,
-    JokeCommand,
     LeaderboardCommand,
     LinkCommand,
     TranslateCommand,
     VerifyCommand,
 } from '../commands';
 import db from '../models/db';
-import { member } from '../models/db/members';
 import { Env, Logger, verifyToken } from '../services';
 import { Controller } from './controller';
 
@@ -92,7 +90,6 @@ export class RootController implements Controller {
                             const guild = client.guilds.cache.get(context.serverID);
                             if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
                             const member = await guild.members.fetch(context.userId);
-                            const isValidTC = (member.nickname || member.user.username).toLowerCase() === context.decodedToken.nickname.toLowerCase();
                             const userMsg = `Hey @${member.user.username}, thank you for verifying your Topcoder account with us!
 
 In order for everyone in our Discord server to know who you are and so that you know who everyone else is, we have updated your Discord nickname in our server only to match your Topcoder username.  By having your Discord nickname match your Topcoder handle, you will be granted with the "Verified" role and badge, which allows you to view all of our channels.  If at any time you decide to change your nickname on our server to anything else, we will be forced to revoke your "Verified" role, in which case you will lose access to our channels and will have to reverify.
@@ -131,7 +128,7 @@ We're glad to have you join us. Welcome!`;
                         // Store in db
                         const m: any = resOps[0].member;
                         const isValidTC = (m.nickname || m.user.username).toLowerCase() === decodedToken.nickname.toLowerCase();
-                        const newVerifiedMember = await db.Member.create({
+                        await db.Member.create({
                             id: m.user.id,
                             username: m.user.username,
                             discriminator: m.user.discriminator,
@@ -165,7 +162,6 @@ We're glad to have you join us. Welcome!`;
             new InfoCommand(),
             new LinkCommand(),
             new TranslateCommand(),
-            new JokeCommand(),
             new VerifyCommand(),
             new LeaderboardCommand(),
             new HandleCheckCommand(),
