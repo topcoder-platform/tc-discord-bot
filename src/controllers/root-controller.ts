@@ -87,30 +87,34 @@ export class RootController implements Controller {
                 } else {
                     const resOps = await this.shardManager.broadcastEval(
                         async (client, context) => {
-                            const guild = client.guilds.cache.get(context.serverID);
-                            if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
-                            const member = await guild.members.fetch(context.userId);
-                            const userMsg = `Hey @${member.user.username}, thank you for verifying your Topcoder account with us!
+                            try {
+                                const guild = client.guilds.cache.get(context.serverID);
+                                if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
+                                const member = await guild.members.fetch(context.userId);
+                                const userMsg = `Hey @${member.user.username}, thank you for verifying your Topcoder account with us!
 
 In order for everyone in our Discord server to know who you are and so that you know who everyone else is, we have updated your Discord nickname in our server only to match your Topcoder username.  By having your Discord nickname match your Topcoder handle, you will be granted with the "Verified" role and badge, which allows you to view all of our channels.  If at any time you decide to change your nickname on our server to anything else, we will be forced to revoke your "Verified" role, in which case you will lose access to our channels and will have to reverify.
 
 We're glad to have you join us. Welcome!`;
-                            // Set member nickname to TC handle
-                            await member.setNickname(context.decodedToken.nickname);
-                            // member roles
-                            const roles = context.roleId.split(',');
-                            if (member && roles.every(r => member.roles.cache.has(r))) {
-                                await member.send(userMsg);
-                                return { success: true, member };
-                            } else if (member) {
-                                await member.roles.add(roles);
-                                if (member.roles.cache.has(context.guestRoleId)) {
-                                    await member.roles.remove(context.guestRoleId);
+                                // Set member nickname to TC handle
+                                await member.setNickname(context.decodedToken.nickname);
+                                // member roles
+                                const roles = context.roleId.split(',');
+                                if (member && roles.every(r => member.roles.cache.has(r))) {
+                                    await member.send(userMsg);
+                                    return { success: true, member };
+                                } else if (member) {
+                                    await member.roles.add(roles);
+                                    if (member.roles.cache.has(context.guestRoleId)) {
+                                        await member.roles.remove(context.guestRoleId);
+                                    }
+                                    await member.send(userMsg);
+                                    return { success: true, member };
+                                } else {
+                                    return { success: false, erorr: 'can not find member by ID' };
                                 }
-                                await member.send(userMsg);
-                                return { success: true, member };
-                            } else {
-                                return { success: false, erorr: 'can not find member by ID' };
+                            } catch (e) {
+                                return { success: false, erorr: e };
                             }
                         },
                         {
@@ -126,19 +130,23 @@ We're glad to have you join us. Welcome!`;
                     if (resOps[0].success) {
                         // User verify success
                         // Store in db
-                        const m: any = resOps[0].member;
-                        const isValidTC = (m.nickname || m.user.username).toLowerCase() === decodedToken.nickname.toLowerCase();
-                        await db.Member.create({
-                            id: m.user.id,
-                            username: m.user.username,
-                            discriminator: m.user.discriminator,
-                            nickname: m.nickname,
-                            tcHandle: decodedToken.nickname,
-                            verifiedDate: new Date(),
-                            discordValidTC: isValidTC
-                        })
-                        // finally redirect user back to discrod
-                        res.redirect(Env.verifySuccessRedirect);
+                        try {
+                            const m: any = resOps[0].member;
+                            const isValidTC = (m.nickname || m.user.username).toLowerCase() === decodedToken.nickname.toLowerCase();
+                            await db.Member.create({
+                                id: m.user.id,
+                                username: m.user.username,
+                                discriminator: m.user.discriminator,
+                                nickname: m.nickname,
+                                tcHandle: decodedToken.nickname,
+                                verifiedDate: new Date(),
+                                discordValidTC: isValidTC
+                            })
+                            // finally redirect user back to discrod
+                            res.redirect(Env.verifySuccessRedirect);
+                        } catch (e) {
+                            res.status(500).json(e);
+                        }
                     } else res.json(resOps);
                 }
             });
