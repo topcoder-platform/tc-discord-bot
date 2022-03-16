@@ -1,6 +1,7 @@
 import { ShardingManager } from 'discord.js';
 
 import { CustomClient } from '../extensions';
+import db from '../models/db';
 import { Env, HttpService, Logger } from '../services';
 import { Job } from './job';
 
@@ -30,22 +31,32 @@ export class MembersCheckJob implements Job {
 
         for (const m of members[0]) {
             try {
-                // const uM = await DiscordUserModel.findOneAndUpdate(
-                //     { discordID: m.user.id },
-                //     { nickname: m.nickname, username: m.user.username, discriminator: m.user.discriminator },
-                //     { new: true, upsert: true }
-                // )
-                // if (!uM.checkHandle || uM.checkHandle !== (m.nickname || m.user.username)) {
-                //     const apiRsp = await this.httpService.get(`https://api.topcoder.com/v5/members/${(m.nickname || m.user.username)}`, '');
-                //     const apiData = await apiRsp.json();
-                //     uM.checkHandle = m.nickname || m.user.username;
-                //     uM.checkValidTC = apiRsp.status === 200;
-                //     // if (apiRsp.status === 200 && !uM.tcHandle) {
-                //     //     uM.tcHandle = apiData.handle;
-                //     //     uM.verifyDate = new Date();
-                //     // }
-                //     await uM.save();
-                // }
+                let userId = m.user.id;
+                let dbM = await db.Member.findByPk(userId);
+                if (dbM) {
+                    // there is record in our db
+                    // check if matching tc -> discord
+                    if (dbM.tcHandle !== (m.nickname || m.user.username)) {
+                        // member renamed him/herself
+                        // take away verified roles
+                        await this.shardManager.broadcastEval(
+                            async (client, context) => {
+                                const customClient = client as CustomClient;
+                                const guild = await client.guilds.fetch(context.serverID)
+                                const member = await guild.members.fetch(context.memberID);
+                                const removeRoles = context.removeRoleIDs.split(',');
+                                await member.roles.remove(removeRoles);
+                            },
+                            {
+                                context: {
+                                    serverID: Env.serverID,
+                                    memberID: userId,
+                                    removeRoleIDs: Env.removeRoleIDs
+                                }
+                            }
+                        );
+                    }
+                }
             } catch (error) {
                 Logger.error('Save error', error);
             }
