@@ -29,7 +29,8 @@ export class VerifyCommand implements Command {
         const userId = intr.user.id;
         const m = await db.Member.findByPk(userId);
         if (m !== null) {
-            const member = await intr.guild.members.fetch(userId);
+            const guild = intr.client.guilds.cache.get(Env.serverID);
+            const member = await guild.members.fetch(userId);
             // Set member nickname to TC handle
             await member.setNickname(m.tcHandle);
             // member roles
