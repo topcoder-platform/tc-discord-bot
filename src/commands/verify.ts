@@ -39,7 +39,7 @@ export class VerifyCommand implements Command {
             if (member.roles.cache.has(Env.guestRoleID)) {
                 await member.roles.remove(Env.guestRoleID);
             }
-            await MessageUtils.sendIntr(intr, `Hey @${intr.user.username}, you already verified yorself. Thank You!`);
+            await MessageUtils.sendIntr(intr, `Hey @${intr.user.username}, you already verified yourself. Thank You!`);
             return;
         }
         // If here procceed with verification
