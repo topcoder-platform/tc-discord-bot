@@ -1,6 +1,8 @@
 import { ShardingManager } from 'discord.js';
+import { intersection } from 'lodash';
 
 import { CustomClient } from '../extensions';
+import db from '../models/db';
 import { Env, HttpService, Logger } from '../services';
 import { Job } from './job';
 
@@ -28,26 +30,42 @@ export class MembersCheckJob implements Job {
 
         Logger.info(`Found ${members[0].length} members in the server processing...`);
 
+        // THE LOOP
+        // iterate over all members in the server
         for (const m of members[0]) {
-            try {
-                // const uM = await DiscordUserModel.findOneAndUpdate(
-                //     { discordID: m.user.id },
-                //     { nickname: m.nickname, username: m.user.username, discriminator: m.user.discriminator },
-                //     { new: true, upsert: true }
-                // )
-                // if (!uM.checkHandle || uM.checkHandle !== (m.nickname || m.user.username)) {
-                //     const apiRsp = await this.httpService.get(`https://api.topcoder.com/v5/members/${(m.nickname || m.user.username)}`, '');
-                //     const apiData = await apiRsp.json();
-                //     uM.checkHandle = m.nickname || m.user.username;
-                //     uM.checkValidTC = apiRsp.status === 200;
-                //     // if (apiRsp.status === 200 && !uM.tcHandle) {
-                //     //     uM.tcHandle = apiData.handle;
-                //     //     uM.verifyDate = new Date();
-                //     // }
-                //     await uM.save();
-                // }
-            } catch (error) {
-                Logger.error('Save error', error);
+            const removeRoles = Env.removeRoleIDs.split(',');
+            // Only for verified roles - means if user has one of the roles that are taken away for verify violance
+            if (intersection(m._roles, removeRoles).length) {
+                try {
+                    let userId = m.user.id;
+                    let dbM = await db.Member.findByPk(userId);
+                    if (dbM) {
+                        // there is record in our db
+                        // check if matching tc -> discord
+                        if (dbM.tcHandle !== (m.nickname || m.user.username)) {
+                            // member renamed him/herself
+                            // take away verified roles
+                            await this.shardManager.broadcastEval(
+                                async (client, context) => {
+                                    const customClient = client as CustomClient;
+                                    const guild = await client.guilds.fetch(context.serverID)
+                                    const member = await guild.members.fetch(context.memberID);
+                                    await member.roles.remove(context.removeRoles);
+                                    await member.send(`Hey @${member.user.username}, we have detected that your discord does not match with your TC handle and therefore have removed your verified role.`);
+                                },
+                                {
+                                    context: {
+                                        serverID: Env.serverID,
+                                        memberID: userId,
+                                        removeRoles
+                                    }
+                                }
+                            );
+                        }
+                    }
+                } catch (error) {
+                    Logger.error('Save error', error);
+                }
             }
         }
 

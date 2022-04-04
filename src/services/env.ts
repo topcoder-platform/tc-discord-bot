@@ -19,5 +19,6 @@ export const Env = {
     postgreDB: process.env.POSTGRE_SQL_DATABASE ?? '',
     authSecret: process.env.AUTH_SECRET ?? '',
     validIssuers: process.env.VALID_ISSUERS ?? '',
-    nodeEnv: process.env.NODE_ENV ?? ''
+    nodeEnv: process.env.NODE_ENV ?? '',
+    removeRoleIDs: process.env.REMOVE_ROLE_IDS ?? ''
 }

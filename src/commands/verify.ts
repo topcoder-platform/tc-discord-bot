@@ -26,9 +26,20 @@ export class VerifyCommand implements Command {
             return;
         }
         // Check if member alredy verified?
-        const m = await db.Member.findByPk(intr.user.id);
+        const userId = intr.user.id;
+        const m = await db.Member.findByPk(userId);
         if (m !== null) {
-            await MessageUtils.sendIntr(intr, `Hey @${intr.user.username}, you already verified yorself. Thank You!`);
+            const guild = intr.client.guilds.cache.get(Env.serverID);
+            const member = await guild.members.fetch(userId);
+            // Set member nickname to TC handle
+            await member.setNickname(m.tcHandle);
+            // member roles
+            const roles = Env.verifyRoleID.split(',');
+            await member.roles.add(roles);
+            if (member.roles.cache.has(Env.guestRoleID)) {
+                await member.roles.remove(Env.guestRoleID);
+            }
+            await MessageUtils.sendIntr(intr, `Hey @${intr.user.username}, you already verified yourself. Thank You!`);
             return;
         }
         // If here procceed with verification
