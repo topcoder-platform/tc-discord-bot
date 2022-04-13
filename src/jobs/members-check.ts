@@ -72,7 +72,7 @@ export class MembersCheckJob implements Job {
             // get member info from TC members API
             const tcAPI = await this.httpService.get(
               `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${dbM.tcHandle}`,
-              null
+              ''
             ).then(r => r.json());
             // prepare rating role that should be set to this member
             // set all to gray rated by default
