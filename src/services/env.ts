@@ -1,6 +1,6 @@
 /**
  * Config service
- * used for access to env vars and etc.
+ * used for access to config vars and etc.
  */
 export const Env = {
     token: process.env.DISCORD_BOT_TOKEN ?? '',
@@ -20,5 +20,11 @@ export const Env = {
     authSecret: process.env.AUTH_SECRET ?? '',
     validIssuers: process.env.VALID_ISSUERS ?? '',
     nodeEnv: process.env.NODE_ENV ?? '',
-    removeRoleIDs: process.env.REMOVE_ROLE_IDS ?? ''
+    removeRoleIDs: process.env.REMOVE_ROLE_IDS ?? '',
+    grayRatedRoleID: process.env.GRAY_RATED_ROLE_ID ?? '',
+    greenRatedRoleID: process.env.GREEN_RATED_ROLE_ID ?? '',
+    blueRatedRoleID: process.env.BLUE_RATED_ROLE_ID ?? '',
+    yellowRatedRoleID: process.env.YELLOW_RATED_ROLE_ID ?? '',
+    redRatedRoleID: process.env.RED_RATED_ROLE_ID ?? '',
+    targetRatedRoleID: process.env.TARGET_RATED_ROLE_ID ?? ''
 }

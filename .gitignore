@@ -128,3 +128,5 @@ dist
 
 ec_app_var_DEV.json
 ec_app_var.json
+
+scripts/
