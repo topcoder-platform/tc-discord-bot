@@ -1,5 +1,7 @@
 {
-    "developers": ["902675052850479135"],
+    "developers": [
+        "902675052850479135"
+    ],
     "client": {
         "intents": [
             "GUILDS",
@@ -9,7 +11,11 @@
             "DIRECT_MESSAGE_REACTIONS",
             "GUILD_MEMBERS"
         ],
-        "partials": ["MESSAGE", "CHANNEL", "REACTION"],
+        "partials": [
+            "MESSAGE",
+            "CHANNEL",
+            "REACTION"
+        ],
         "caches": {
             "BaseGuildEmojiManager": 0,
             "GuildBanManager": 0,
@@ -47,7 +53,7 @@
             "log": false
         },
         "membersCheck": {
-            "schedule": "0 */15 * * * *",
+            "schedule": "0 0 */2 * * *",
             "log": false
         }
     },
