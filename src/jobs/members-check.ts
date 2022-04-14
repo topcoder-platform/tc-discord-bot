@@ -91,9 +91,9 @@ export class MembersCheckJob implements Job {
                 // 1. Check if matching tc -> discord
                 if (context.tcHandle !== (member.nickname || member.user.username)) {
                   // member renamed him/herself
-                  // Takeaway verified roles
-                  await member.roles.remove(context.removeRoles);
-                  await member.send(`Hey @${member.user.username}, we have detected that your discord does not match with your TC handle and therefore have removed your verified role.`);
+                  // force rename back to tcHandle
+                  await member.setNickname(context.tcHandle);
+                  await member.send(`Hey @${member.user.username}, our server has detected that you have changed your nickname. In order for other community members to know who they are talking to, we require everyone to use their Topcoder handle as their Discord nickname. Great thing is, there is no action required from you! We have taken the liberty to switch your nickname back to your Topcoder handle. Thank you for your understanding and if you have any questions please feel free to open a ticket.`);
                 }
                 // 2. Check for TC rating updates/misses
                 if (!member.roles.cache.has(context.ratingRole)) {
