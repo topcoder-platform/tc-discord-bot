@@ -65,7 +65,6 @@ export class MembersCheckJob implements Job {
             // eval member's state and apply housekeeping logic
             await this.shardManager.broadcastEval(
               async (client, context) => {
-                const customClient = client as CustomClient;
                 const guild = await client.guilds.fetch(context.serverID)
                 const member = await guild.members.fetch(context.memberID);
 
@@ -74,7 +73,9 @@ export class MembersCheckJob implements Job {
                   // member renamed him/herself
                   // force rename back to tcHandle
                   await member.setNickname(context.tcHandle);
-                  await member.send(`Hey @${member.user.username}, our server has detected that you have changed your nickname. In order for other community members to know who they are talking to, we require everyone to use their Topcoder handle as their Discord nickname. Great thing is, there is no action required from you! We have taken the liberty to switch your nickname back to your Topcoder handle. Thank you for your understanding and if you have any questions please feel free to open a ticket.`);
+                  try {
+                    await member.send(`Hey @${member.user.username}, our server has detected that you have changed your nickname. In order for other community members to know who they are talking to, we require everyone to use their Topcoder handle as their Discord nickname. Great thing is, there is no action required from you! We have taken the liberty to switch your nickname back to your Topcoder handle. Thank you for your understanding and if you have any questions please feel free to open a ticket.`);
+                  } catch (e) { }
                 }
                 // 2. Check for TC rating updates/misses
                 if (!member.roles.cache.has(context.ratingRole)) {
@@ -101,6 +102,26 @@ export class MembersCheckJob implements Job {
                 }
               }
             );
+          } else {
+            // // member has verified role but is not in the DB
+            // // we need to remove verified roles to force re-verify
+            // // eval member's state and apply housekeeping logic
+            // await this.shardManager.broadcastEval(
+            //   async (client, context) => {
+            //     const guild = await client.guilds.fetch(context.serverID)
+            //     const member = await guild.members.fetch(context.memberID);
+
+            //     // 1. Remove verified roles
+            //     await member.roles.remove(context.removeRoles);
+            //   },
+            //   {
+            //     context: {
+            //       serverID: Env.serverID,
+            //       memberID: userId,
+            //       removeRoles
+            //     }
+            //   }
+            // );
           }
         } catch (e) {
           Logger.error('In The LOOP error', e);
