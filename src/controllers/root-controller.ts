@@ -20,8 +20,9 @@ import {
     VerifyCommand,
 } from '../commands';
 import db from '../models/db';
-import { Env, Logger, verifyToken } from '../services';
+import { Env, Logger, verifyToken, HttpService } from '../services';
 import { Controller } from './controller';
+import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 
 const Config = require('../../config/config.json');
 const authenticator = middleware.jwtAuthenticator;
@@ -85,6 +86,21 @@ export class RootController implements Controller {
                     res.status(400).send(`Bad Request: ${err}`);
                     return;
                 } else {
+                    // there is record for this member in our db
+                    // get member info from TC members API
+                    const https = new HttpService();
+                    const tcAPI = await https.get(
+                        `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${decodedToken.nickname}`,
+                        ''
+                    ).then(r => r.json());
+                    // prepare rating role that should be set to this member
+                    // set all to gray rated by default
+                    let ratingRole = Env.grayRatedRoleID;
+                    if (tcAPI.maxRating && tcAPI.maxRating.rating) {
+                        // sometimes no rating available from TC API
+                        ratingRole = RATINGS_ROLES_MAP[getRatingLevel(tcAPI.maxRating.rating)];
+                    }
+                    // discord side...
                     const resOps = await this.shardManager.broadcastEval(
                         async (client, context) => {
                             try {
@@ -100,15 +116,20 @@ We're glad to have you join us. Welcome!`;
                                 await member.setNickname(context.decodedToken.nickname);
                                 // member roles
                                 const roles = context.roleId.split(',');
+                                roles.push(context.ratingRole);
                                 if (member && roles.every(r => member.roles.cache.has(r))) {
-                                    await member.send(userMsg);
+                                    try {
+                                        await member.send(userMsg);
+                                    } catch (e) { }
                                     return { success: true, member };
                                 } else if (member) {
                                     await member.roles.add(roles);
                                     if (member.roles.cache.has(context.guestRoleId)) {
                                         await member.roles.remove(context.guestRoleId);
                                     }
-                                    await member.send(userMsg);
+                                    try {
+                                        await member.send(userMsg);
+                                    } catch (e) { }
                                     return { success: true, member };
                                 } else {
                                     return { success: false, erorr: 'can not find member by ID' };
@@ -123,7 +144,8 @@ We're glad to have you join us. Welcome!`;
                                 userId: decodedDiscord.data.userId,
                                 roleId: Env.verifyRoleID,
                                 guestRoleId: Env.guestRoleID,
-                                decodedToken
+                                decodedToken,
+                                ratingRole
                             }
                         }
                     );

@@ -5,28 +5,9 @@ import { CustomClient } from '../extensions';
 import db from '../models/db';
 import { Env, HttpService, Logger } from '../services';
 import { Job } from './job';
+import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 
 let Config = require('../../config/config.json');
-
-/** TC rating helper */
-function getRatingLevel(rating: Number | string) {
-  if (rating < 900) return 1;
-  if (rating < 1200) return 2;
-  if (rating < 1500) return 3;
-  if (rating < 2200) return 4;
-  if (rating < 3000) return 5;
-  return 6;
-}
-
-const RATINGS_ROLES_MAP = {
-  1: Env.grayRatedRoleID,
-  2: Env.greenRatedRoleID,
-  3: Env.blueRatedRoleID,
-  4: Env.yellowRatedRoleID,
-  5: Env.redRatedRoleID,
-  6: Env.targetRatedRoleID
-};
-
 export class MembersCheckJob implements Job {
   public name = 'Members Check';
   public schedule: string = Config.jobs.membersCheck.schedule;
@@ -84,7 +65,6 @@ export class MembersCheckJob implements Job {
             // eval member's state and apply housekeeping logic
             await this.shardManager.broadcastEval(
               async (client, context) => {
-                const customClient = client as CustomClient;
                 const guild = await client.guilds.fetch(context.serverID)
                 const member = await guild.members.fetch(context.memberID);
 
@@ -93,7 +73,9 @@ export class MembersCheckJob implements Job {
                   // member renamed him/herself
                   // force rename back to tcHandle
                   await member.setNickname(context.tcHandle);
-                  await member.send(`Hey @${member.user.username}, our server has detected that you have changed your nickname. In order for other community members to know who they are talking to, we require everyone to use their Topcoder handle as their Discord nickname. Great thing is, there is no action required from you! We have taken the liberty to switch your nickname back to your Topcoder handle. Thank you for your understanding and if you have any questions please feel free to open a ticket.`);
+                  try {
+                    await member.send(`Hey @${member.user.username}, our server has detected that you have changed your nickname. In order for other community members to know who they are talking to, we require everyone to use their Topcoder handle as their Discord nickname. Great thing is, there is no action required from you! We have taken the liberty to switch your nickname back to your Topcoder handle. Thank you for your understanding and if you have any questions please feel free to open a ticket.`);
+                  } catch (e) { }
                 }
                 // 2. Check for TC rating updates/misses
                 if (!member.roles.cache.has(context.ratingRole)) {
@@ -120,6 +102,26 @@ export class MembersCheckJob implements Job {
                 }
               }
             );
+          } else {
+            // // member has verified role but is not in the DB
+            // // we need to remove verified roles to force re-verify
+            // // eval member's state and apply housekeeping logic
+            // await this.shardManager.broadcastEval(
+            //   async (client, context) => {
+            //     const guild = await client.guilds.fetch(context.serverID)
+            //     const member = await guild.members.fetch(context.memberID);
+
+            //     // 1. Remove verified roles
+            //     await member.roles.remove(context.removeRoles);
+            //   },
+            //   {
+            //     context: {
+            //       serverID: Env.serverID,
+            //       memberID: userId,
+            //       removeRoles
+            //     }
+            //   }
+            // );
           }
         } catch (e) {
           Logger.error('In The LOOP error', e);
