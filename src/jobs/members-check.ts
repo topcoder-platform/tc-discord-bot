@@ -5,28 +5,9 @@ import { CustomClient } from '../extensions';
 import db from '../models/db';
 import { Env, HttpService, Logger } from '../services';
 import { Job } from './job';
+import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 
 let Config = require('../../config/config.json');
-
-/** TC rating helper */
-function getRatingLevel(rating: Number | string) {
-  if (rating < 900) return 1;
-  if (rating < 1200) return 2;
-  if (rating < 1500) return 3;
-  if (rating < 2200) return 4;
-  if (rating < 3000) return 5;
-  return 6;
-}
-
-const RATINGS_ROLES_MAP = {
-  1: Env.grayRatedRoleID,
-  2: Env.greenRatedRoleID,
-  3: Env.blueRatedRoleID,
-  4: Env.yellowRatedRoleID,
-  5: Env.redRatedRoleID,
-  6: Env.targetRatedRoleID
-};
-
 export class MembersCheckJob implements Job {
   public name = 'Members Check';
   public schedule: string = Config.jobs.membersCheck.schedule;

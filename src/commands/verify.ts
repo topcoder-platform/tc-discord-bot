@@ -3,9 +3,10 @@ import jwt from 'jsonwebtoken';
 import qs from 'qs';
 import db from '../models/db';
 import { EventData } from '../models/internal-models';
-import { Env } from '../services/env';
+import { Env, HttpService } from '../services';
 import { MessageUtils } from '../utils';
 import { Command } from './command';
+import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 let Config = require('../../config/config.json');
 
 export class VerifyCommand implements Command {
@@ -31,10 +32,24 @@ export class VerifyCommand implements Command {
         if (m !== null) {
             const guild = intr.client.guilds.cache.get(Env.serverID);
             const member = await guild.members.fetch(userId);
+            // get member info from TC members API
+            const https = new HttpService();
+            const tcAPI = await https.get(
+                `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${m.tcHandle}`,
+                ''
+            ).then(r => r.json());
+            // prepare rating role that should be set to this member
+            // set all to gray rated by default
+            let ratingRole = Env.grayRatedRoleID;
+            if (tcAPI.maxRating && tcAPI.maxRating.rating) {
+                // sometimes no rating available from TC API
+                ratingRole = RATINGS_ROLES_MAP[getRatingLevel(tcAPI.maxRating.rating)];
+            }
             // Set member nickname to TC handle
             await member.setNickname(m.tcHandle);
             // member roles
             const roles = Env.verifyRoleID.split(',');
+            roles.push(ratingRole);
             await member.roles.add(roles);
             if (member.roles.cache.has(Env.guestRoleID)) {
                 await member.roles.remove(Env.guestRoleID);

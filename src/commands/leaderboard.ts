@@ -94,7 +94,7 @@ export class LeaderboardCommand implements Command {
             { name: 'Points', value: '--------', inline: true }
         ];
 
-        dataLook.slice(0, leaderboard === 'Algorithm' ? 10 : 5).forEach((record, indx) => {
+        dataLook.slice(0, 5).forEach((record, indx) => {
             fields.push({ name: '\u200B', value: (indx + 1) + '', inline: true });
             fields.push({ name: '\u200B', value: `[${record['member_profile_basic.handle']}](https://topcoder.com/members/${record['member_profile_basic.handle']})`, inline: true });
             fields.push({ name: '\u200B', value: record['tco_leaderboard.tco_points'] + '', inline: true });
