@@ -103,25 +103,28 @@ export class MembersCheckJob implements Job {
               }
             );
           } else {
-            // // member has verified role but is not in the DB
-            // // we need to remove verified roles to force re-verify
-            // // eval member's state and apply housekeeping logic
-            // await this.shardManager.broadcastEval(
-            //   async (client, context) => {
-            //     const guild = await client.guilds.fetch(context.serverID)
-            //     const member = await guild.members.fetch(context.memberID);
+            // member has verified role but is not in the DB
+            // we need to remove verified roles to force re-verify
+            // eval member's state and apply housekeeping logic
+            await this.shardManager.broadcastEval(
+              async (client, context) => {
+                const guild = await client.guilds.fetch(context.serverID)
+                const member = await guild.members.fetch(context.memberID);
 
-            //     // 1. Remove verified roles
-            //     await member.roles.remove(context.removeRoles);
-            //   },
-            //   {
-            //     context: {
-            //       serverID: Env.serverID,
-            //       memberID: userId,
-            //       removeRoles
-            //     }
-            //   }
-            // );
+                // 1. Remove verified roles
+                // only if not Admin or CM type of member
+                if (!['925578319808823376', '928017383384289321'].some(r => member.roles.cache.has(r))) {
+                  await member.roles.remove(context.removeRoles);
+                }
+              },
+              {
+                context: {
+                  serverID: Env.serverID,
+                  memberID: userId,
+                  removeRoles
+                }
+              }
+            );
           }
         } catch (e) {
           Logger.error('In The LOOP error', e);
