@@ -111,17 +111,19 @@ export class MembersCheckJob implements Job {
                 const guild = await client.guilds.fetch(context.serverID)
                 const member = await guild.members.fetch(context.memberID);
 
-                // 1. Remove verified roles
+                // 1. Remove verified roles and add guest
                 // only if not Admin or CM type of member
-                if (!['925578319808823376', '928017383384289321'].some(r => member.roles.cache.has(r))) {
+                if (![Env.configRoleIDs.CM_ROLE, Env.configRoleIDs.ADMIN_ROLE].some(r => member.roles.cache.has(r))) {
                   await member.roles.remove(context.removeRoles);
+                  await member.roles.add(context.guestRole);
                 }
               },
               {
                 context: {
                   serverID: Env.serverID,
                   memberID: userId,
-                  removeRoles
+                  removeRoles,
+                  guestRole: Env.guestRoleID
                 }
               }
             );
