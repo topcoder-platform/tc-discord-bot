@@ -83,5 +83,17 @@
     },
     "DiscordManagePermissionRoles": [
         "discord-manager"
-    ]
+    ],
+    "DEV": {
+        "ROLES": {
+            "CM_ROLE": "",
+            "ADMIN_ROLE": ""
+        }
+    },
+    "PROD": {
+        "ROLES": {
+            "CM_ROLE": "928017383384289321",
+            "ADMIN_ROLE": "925578319808823376"
+        }
+    }
 }

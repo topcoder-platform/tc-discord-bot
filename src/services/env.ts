@@ -1,3 +1,4 @@
+let Config = require('../../config/config.json');
 /**
  * Config service
  * used for access to config vars and etc.
@@ -26,5 +27,6 @@ export const Env = {
     blueRatedRoleID: process.env.BLUE_RATED_ROLE_ID ?? '',
     yellowRatedRoleID: process.env.YELLOW_RATED_ROLE_ID ?? '',
     redRatedRoleID: process.env.RED_RATED_ROLE_ID ?? '',
-    targetRatedRoleID: process.env.TARGET_RATED_ROLE_ID ?? ''
+    targetRatedRoleID: process.env.TARGET_RATED_ROLE_ID ?? '',
+    configRoleIDs: process.env.NODE_ENV === 'production' ? Config.PROD.ROLES : Config.DEV.ROLES
 }
