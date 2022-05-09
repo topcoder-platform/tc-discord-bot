@@ -3,10 +3,10 @@ import jwt from 'jsonwebtoken';
 import qs from 'qs';
 import db from '../models/db';
 import { EventData } from '../models/internal-models';
+import { getRatingLevel, RATINGS_ROLES_MAP } from '../models/tc-models';
 import { Env, HttpService } from '../services';
 import { MessageUtils } from '../utils';
 import { Command } from './command';
-import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 let Config = require('../../config/config.json');
 
 export class VerifyCommand implements Command {

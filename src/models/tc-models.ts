@@ -1,4 +1,4 @@
-import { Env } from "../services"
+import { Env } from '../services'
 
 export const RATINGS_ROLES_MAP = {
   1: Env.grayRatedRoleID,
@@ -10,7 +10,7 @@ export const RATINGS_ROLES_MAP = {
 }
 
 /** TC rating helper */
-export function getRatingLevel(rating: Number | string) {
+export function getRatingLevel(rating: number | string): number {
   if (rating < 900) return 1;
   if (rating < 1200) return 2;
   if (rating < 1500) return 3;

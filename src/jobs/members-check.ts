@@ -1,11 +1,9 @@
 import { ShardingManager } from 'discord.js';
 import { intersection } from 'lodash';
-
-import { CustomClient } from '../extensions';
 import db from '../models/db';
+import { getRatingLevel, RATINGS_ROLES_MAP } from '../models/tc-models';
 import { Env, HttpService, Logger } from '../services';
 import { Job } from './job';
-import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 
 let Config = require('../../config/config.json');
 export class MembersCheckJob implements Job {
@@ -22,7 +20,6 @@ export class MembersCheckJob implements Job {
     // get all members for the server
     const members: any = await this.shardManager.broadcastEval(
       async (client, context) => {
-        const customClient = client as CustomClient;
         const guild = await client.guilds.fetch(context.serverID)
         const members = await guild.members.fetch();
         return [...members.filter((g: any) => !g.user.bot).values()];
@@ -75,7 +72,7 @@ export class MembersCheckJob implements Job {
                   await member.setNickname(context.tcHandle);
                   try {
                     await member.send(`Hey @${member.user.username}, our server has detected that you have changed your nickname. In order for other community members to know who they are talking to, we require everyone to use their Topcoder handle as their Discord nickname. Great thing is, there is no action required from you! We have taken the liberty to switch your nickname back to your Topcoder handle. Thank you for your understanding and if you have any questions please feel free to open a ticket.`);
-                  } catch (e) { }
+                  } catch (e) { console.log(e); }
                 }
                 // 2. Check for TC rating updates/misses
                 if (!member.roles.cache.has(context.ratingRole)) {
@@ -113,7 +110,7 @@ export class MembersCheckJob implements Job {
 
                 // 1. Remove verified roles and add guest
                 // only if not Admin or CM type of member
-                if (![Env.configRoleIDs.CM_ROLE, Env.configRoleIDs.ADMIN_ROLE].some(r => member.roles.cache.has(r))) {
+                if (![context.roleCM, context.roleADMIN].some(r => member.roles.cache.has(r))) {
                   await member.roles.remove(context.removeRoles);
                   await member.roles.add(context.guestRole);
                 }
@@ -123,7 +120,9 @@ export class MembersCheckJob implements Job {
                   serverID: Env.serverID,
                   memberID: userId,
                   removeRoles,
-                  guestRole: Env.guestRoleID
+                  guestRole: Env.guestRoleID,
+                  roleCM: Env.configRoleIDs.CM_ROLE,
+                  roleADMIN: Env.configRoleIDs.ADMIN_ROLE
                 }
               }
             );
