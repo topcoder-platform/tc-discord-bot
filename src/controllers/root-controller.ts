@@ -20,9 +20,9 @@ import {
     VerifyCommand,
 } from '../commands';
 import db from '../models/db';
-import { Env, Logger, verifyToken, HttpService } from '../services';
+import { getRatingLevel, RATINGS_ROLES_MAP } from '../models/tc-models';
+import { Env, HttpService, Logger, verifyToken } from '../services';
 import { Controller } from './controller';
-import { RATINGS_ROLES_MAP, getRatingLevel } from '../models/tc-models';
 
 const Config = require('../../config/config.json');
 const authenticator = middleware.jwtAuthenticator;
@@ -120,7 +120,7 @@ We're glad to have you join us. Welcome!`;
                                 if (member && roles.every(r => member.roles.cache.has(r))) {
                                     try {
                                         await member.send(userMsg);
-                                    } catch (e) { }
+                                    } catch (e) { console.log(e); }
                                     return { success: true, member };
                                 } else if (member) {
                                     await member.roles.add(roles);
@@ -129,7 +129,7 @@ We're glad to have you join us. Welcome!`;
                                     }
                                     try {
                                         await member.send(userMsg);
-                                    } catch (e) { }
+                                    } catch (e) { console.log(e); }
                                     return { success: true, member };
                                 } else {
                                     return { success: false, erorr: 'can not find member by ID' };
