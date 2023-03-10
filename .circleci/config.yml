@@ -9,7 +9,7 @@ install_dependency: &install_dependency
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.
   command: |
-    git clone --branch v1.4.6 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+    git clone --branch v1.4.14 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
     cp ./../buildscript/master_deploy.sh .
     cp ./../buildscript/buildenv.sh .
     cp ./../buildscript/awsconfiguration.sh .
@@ -48,6 +48,14 @@ jobs:
       APPNAME: "tc-discord-bot"
     steps: *builddeploy_steps
 
+  "build-qa":
+    <<: *defaults
+    environment:
+      DEPLOY_ENV: "QA"
+      LOGICAL_ENV: "qa"
+      APPNAME: "tc-discord-bot"
+    steps: *builddeploy_steps
+
   "build-prod":
     <<: *defaults
     environment:
@@ -68,6 +76,12 @@ workflows:
               only:
                 - develop
 
+      - "build-qa":
+          context: org-global
+          filters:
+            branches:
+              only:
+                - qa
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.
