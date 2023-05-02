@@ -68,7 +68,7 @@ export class VerifyCommand implements Command {
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle('CLICK HERE TO VERIFY')
-            .setURL(`https://accounts-auth0.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/member/registration?retUrl=${retUrl}&mode=signIn&${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'verify-members' })}`)
+            .setURL(`https://accounts-auth0.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/?retUrl=${retUrl}&mode=signIn&${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'verify-members' })}`)
             .setDescription('You will be sent to Topcoder authentication page where you need to either login or register. Once done, we will send you back to discord and complete the verification process.');
 
         await MessageUtils.sendIntr(intr, embed);
