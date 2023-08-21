@@ -79,11 +79,16 @@ export class RootController implements Controller {
         try {
             const discord = req.query.discord;
             const token = req.query.token;
+            console.log('verifyUser request started');
+            console.log('discordJWT', discord);
+            console.log('tcJWT', token);
             const decodedDiscord: any = jwt.verify(discord as string, Env.token);
+            console.log('decodedDiscord', decodedDiscord);
             // verfy token comes from TC 4real
             verifyToken(token, Env.validIssuers, async (err: any, decodedToken: any) => {
                 if (err) {
                     res.status(400).send(`Bad Request: ${err}`);
+                    console.log('verify TC token request failed', err);
                     return;
                 } else {
                     // there is record for this member in our db
@@ -103,6 +108,7 @@ export class RootController implements Controller {
                     // discord side...
                     const resOps = await this.shardManager.broadcastEval(
                         async (client, context) => {
+                            console.log('broadcastEval context', context);
                             try {
                                 const guild = client.guilds.cache.get(context.serverID);
                                 if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
