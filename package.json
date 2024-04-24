@@ -6,7 +6,7 @@
     "license": "MIT",
     "private": true,
     "engines": {
-        "node": ">=16.6.0"
+        "node": ">=21.6.0"
     },
     "main": "dist/start.js",
     "scripts": {

@@ -4,7 +4,6 @@ import { HttpService } from '.';
 import {
     LoginClusterResponse,
     RegisterClusterRequest,
-    RegisterClusterResponse,
 } from '../models/master-api';
 
 let Config = require('../../config/config.json');
@@ -33,7 +32,7 @@ export class MasterApiService {
             throw res;
         }
 
-        let resBody: RegisterClusterResponse = await res.json();
+        let resBody: any = await res.json();
         this.clusterId = resBody.id;
     }
 
@@ -47,7 +46,7 @@ export class MasterApiService {
             throw res;
         }
 
-        return res.json();
+        return res.json() as any;
     }
 
     public async ready(): Promise<void> {

@@ -1,9 +1,5 @@
 import { ApplicationCommandOptionType } from 'discord-api-types/v10';
-import {
-    ApplicationCommandData,
-    CommandInteraction,
-    PermissionString,
-} from 'discord.js';
+import { ApplicationCommandData, CommandInteraction, PermissionString } from 'discord.js';
 
 import { EventData } from '../models/internal-models';
 import { HttpService } from '../services/http-service';
@@ -38,14 +34,20 @@ export class HandleCheckCommand implements Command {
         let username = intr.options.getString('username');
         const https = new HttpService();
         const apiRsp = await https.get(`https://api.topcoder.com/v5/members/${username}`, '');
-        const apiData = await apiRsp.json();
+        const apiData: any = await apiRsp.json();
 
         if (apiRsp.status !== 200) {
-            await MessageUtils.sendIntr(intr, apiData.message || `Username ${username} doesn't exist for Topcoder!`);
+            await MessageUtils.sendIntr(
+                intr,
+                apiData.message || `Username ${username} doesn't exist for Topcoder!`
+            );
         } else {
-            await MessageUtils.sendIntr(intr, `SUCCESS!
+            await MessageUtils.sendIntr(
+                intr,
+                `SUCCESS!
 Username "${username}" is valid Topcoder handle.
-Current status: ${apiData.status}`);
+Current status: ${apiData.status}`
+            );
         }
     }
 }
