@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType } from 'discord-api-types';
+import { ApplicationCommandOptionType } from 'discord-api-types/v10';
 import {
     ApplicationCommandData,
     CommandInteraction,
@@ -17,7 +17,7 @@ let Config = require('../../config/config.json');
 const contentful = require('contentful');
 const client = contentful.createClient({
     space: Env.contentfulSpaceID,
-    accessToken: Env.contentfulCDNKey
+    accessToken: Env.contentfulCDNKey,
 });
 
 export class LeaderboardCommand implements Command {
@@ -70,7 +70,7 @@ export class LeaderboardCommand implements Command {
                     {
                         name: 'QA Copilot',
                         value: 'QA_copilot',
-                    }
+                    },
                 ],
             },
         ],
@@ -87,25 +87,37 @@ export class LeaderboardCommand implements Command {
         const entry = entryRsp.fields.props[leaderboard];
         const https = new HttpService();
         const dataLookerRsp = await https.get(entry.api, '');
-        const dataLook = await dataLookerRsp.json();
+        const dataLook: any = await dataLookerRsp.json();
         const fields = [
             { name: 'Rank', value: '------', inline: true },
             { name: 'Handle', value: '---------', inline: true },
-            { name: 'Points', value: '--------', inline: true }
+            { name: 'Points', value: '--------', inline: true },
         ];
 
         dataLook.slice(0, 5).forEach((record, indx) => {
-            fields.push({ name: '\u200B', value: (indx + 1) + '', inline: true });
-            fields.push({ name: '\u200B', value: `[${record['member_profile_basic.handle']}](https://topcoder.com/members/${record['member_profile_basic.handle']})`, inline: true });
-            fields.push({ name: '\u200B', value: record['tco_leaderboard.tco_points'] + '', inline: true });
+            fields.push({ name: '\u200B', value: indx + 1 + '', inline: true });
+            fields.push({
+                name: '\u200B',
+                value: `[${record['member_profile_basic.handle']}](https://topcoder.com/members/${record['member_profile_basic.handle']})`,
+                inline: true,
+            });
+            fields.push({
+                name: '\u200B',
+                value: record['tco_leaderboard.tco_points'] + '',
+                inline: true,
+            });
         });
 
         const embed = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle(`${entry.stageText} - ${entry.selectText} ${entry.titleText}`)
-            .setURL(`${entry.leaderboardUrl}&${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'discord-to-platform' })}`)
+            .setURL(
+                `${entry.leaderboardUrl}&${qs.stringify({ ...Config.UTMs, utm_campaign: 'discord-to-platform' })}`
+            )
             .addFields(fields)
-            .setImage('https://images.ctfassets.net/b5f1djy59z3a/5IJ8vYa6HHJV2aMpl83eyG/5ca3e0a83792ec0ad0a588bcc63b1a9d/D561D764-FFF8-43DF-AA52-660A42A3A001.svg?fm=png')
+            .setImage(
+                'https://images.ctfassets.net/b5f1djy59z3a/5IJ8vYa6HHJV2aMpl83eyG/5ca3e0a83792ec0ad0a588bcc63b1a9d/D561D764-FFF8-43DF-AA52-660A42A3A001.svg?fm=png'
+            )
             .setFooter({ text: 'TCO - WHERE OUR VIRTUAL COMMUNITY BECOMES REALITY.' });
 
         await MessageUtils.sendIntr(intr, embed);

@@ -1,4 +1,4 @@
-FROM node:16.6
+FROM node:21.6.0
 
 # Create app directory
 WORKDIR /tc-discord-bot
