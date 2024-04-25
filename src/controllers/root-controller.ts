@@ -87,12 +87,15 @@ export class RootController implements Controller {
             const discord = req.query.discord;
             const token = req.query.token;
             const decodedDiscord: any = jwt.verify(discord as string, Env.token);
+            Logger.info(`verifyUser entry: ${JSON.stringify(decodedDiscord)}`);
             // verfy token comes from TC 4real
             verifyToken(token, Env.validIssuers, async (err: any, decodedToken: any) => {
                 if (err) {
+                    Logger.error('verifyToken error:', JSON.stringify(err));
                     res.status(400).send(`Bad Request: ${err}`);
                     return;
                 } else {
+                    Logger.info(`verifyToken success: ${JSON.stringify(decodedToken)}`);
                     // there is record for this member in our db
                     // get member info from TC members API
                     const https = new HttpService();
@@ -102,6 +105,7 @@ export class RootController implements Controller {
                             ''
                         )
                         .then(r => r.json());
+                    Logger.info(`verifyToken user data: ${JSON.stringify(tcAPI)}`);
                     // prepare rating role that should be set to this member
                     // set all to gray rated by default
                     let ratingRole = Env.grayRatedRoleID;
@@ -166,6 +170,7 @@ We're glad to have you join us. Welcome!`;
                             },
                         }
                     );
+                    Logger.info(`verifyUser broadcastEval result: ${JSON.stringify(resOps)}`);
                     if (resOps[0].success) {
                         // User verify success
                         // Store in db
@@ -192,6 +197,7 @@ We're glad to have you join us. Welcome!`;
                 }
             });
         } catch (e) {
+            Logger.error('verify user error:', JSON.stringify(e));
             res.status(500).json(e);
             throw e;
         }
