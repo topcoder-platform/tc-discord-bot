@@ -1,5 +1,4 @@
 import { DiscordAPIError } from 'discord.js';
-import { Response } from 'node-fetch';
 import pino from 'pino';
 
 let Config = require('../../config/config.json');
@@ -56,7 +55,7 @@ export class Logger {
                         path: error.url,
                         statusCode: error.status,
                         statusName: error.statusText,
-                        headers: error.headers.raw(),
+                        headers: error.headers,
                         body: resText,
                     })
                     .error(message);

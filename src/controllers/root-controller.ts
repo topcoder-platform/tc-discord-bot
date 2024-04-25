@@ -5,7 +5,6 @@ import { Request, Response, Router } from 'express';
 import router from 'express-promise-router';
 import jwt from 'jsonwebtoken';
 import { intersection } from 'lodash';
-import fetch from 'node-fetch';
 import qs from 'qs';
 import { middleware } from 'tc-core-library-js';
 import {
