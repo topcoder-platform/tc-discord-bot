@@ -5,7 +5,6 @@ import { Request, Response, Router } from 'express';
 import router from 'express-promise-router';
 import jwt from 'jsonwebtoken';
 import { intersection } from 'lodash';
-import fetch from 'node-fetch';
 import qs from 'qs';
 import { middleware } from 'tc-core-library-js';
 import {
@@ -32,14 +31,22 @@ export class RootController implements Controller {
     public path = '/v5/discord-bot';
     public router: Router = router();
 
-    constructor(private shardManager: ShardingManager) { }
+    constructor(private shardManager: ShardingManager) {}
 
     public register(): void {
         this.router.get('/health', (req, res) => this.get(req, res)); // health check
         this.router.post('/webhooks/thrive', (req, res) => this.thriveWebhook(req, res));
         this.router.get('/webhooks/verify-user', (req, res) => this.verifyUser(req, res));
-        this.router.get('/register-commands', (req, res, next) => authenticator(authenticatorOptions)(req, res, next), (req, res) => this.registerCommands(req, res));
-        this.router.post('/members', (req, res, next) => authenticator(authenticatorOptions)(req, res, next), (req, res) => this.getMembers(req, res));
+        this.router.get(
+            '/register-commands',
+            (req, res, next) => authenticator(authenticatorOptions)(req, res, next),
+            (req, res) => this.registerCommands(req, res)
+        );
+        this.router.post(
+            '/members',
+            (req, res, next) => authenticator(authenticatorOptions)(req, res, next),
+            (req, res) => this.getMembers(req, res)
+        );
     }
 
     private async get(req: Request, res: Response): Promise<void> {
@@ -63,7 +70,7 @@ export class RootController implements Controller {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    content: `Hey, we have published a new article on Thrive. Have a look at it https://www.topcoder.com/thrive/articles/${req.body.fields.slug['en-US']}?${qs.stringify({ ...Config.UTMs, 'utm_campaign': 'thrive-articles' })}`
+                    content: `Hey, we have published a new article on Thrive. Have a look at it https://www.topcoder.com/thrive/articles/${req.body.fields.slug['en-US']}?${qs.stringify({ ...Config.UTMs, utm_campaign: 'thrive-articles' })}`,
                 }),
             });
         }
@@ -80,19 +87,25 @@ export class RootController implements Controller {
             const discord = req.query.discord;
             const token = req.query.token;
             const decodedDiscord: any = jwt.verify(discord as string, Env.token);
+            Logger.info(`verifyUser entry: ${JSON.stringify(decodedDiscord)}`);
             // verfy token comes from TC 4real
             verifyToken(token, Env.validIssuers, async (err: any, decodedToken: any) => {
                 if (err) {
+                    Logger.error('verifyToken error:', JSON.stringify(err));
                     res.status(400).send(`Bad Request: ${err}`);
                     return;
                 } else {
+                    Logger.info(`verifyToken success: ${JSON.stringify(decodedToken)}`);
                     // there is record for this member in our db
                     // get member info from TC members API
                     const https = new HttpService();
-                    const tcAPI = await https.get(
-                        `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${decodedToken.nickname}`,
-                        ''
-                    ).then(r => r.json());
+                    const tcAPI: any = await https
+                        .get(
+                            `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${decodedToken.nickname}`,
+                            ''
+                        )
+                        .then(r => r.json());
+                    Logger.info(`verifyToken user data: ${JSON.stringify(tcAPI)}`);
                     // prepare rating role that should be set to this member
                     // set all to gray rated by default
                     let ratingRole = Env.grayRatedRoleID;
@@ -105,7 +118,11 @@ export class RootController implements Controller {
                         async (client, context) => {
                             try {
                                 const guild = client.guilds.cache.get(context.serverID);
-                                if (!guild) return { success: false, error: `Can\'t find any guild with the ID: ${context.serverID}` };
+                                if (!guild)
+                                    return {
+                                        success: false,
+                                        error: `Can\'t find any guild with the ID: ${context.serverID}`,
+                                    };
                                 const member = await guild.members.fetch(context.userId);
                                 const userMsg = `Hey @${member.user.username}, thank you for verifying your Topcoder account with us!
 
@@ -120,7 +137,9 @@ We're glad to have you join us. Welcome!`;
                                 if (member && roles.every(r => member.roles.cache.has(r))) {
                                     try {
                                         await member.send(userMsg);
-                                    } catch (e) { console.log(e); }
+                                    } catch (e) {
+                                        console.log(e);
+                                    }
                                     return { success: true, member };
                                 } else if (member) {
                                     await member.roles.add(roles);
@@ -129,7 +148,9 @@ We're glad to have you join us. Welcome!`;
                                     }
                                     try {
                                         await member.send(userMsg);
-                                    } catch (e) { console.log(e); }
+                                    } catch (e) {
+                                        console.log(e);
+                                    }
                                     return { success: true, member };
                                 } else {
                                     return { success: false, erorr: 'can not find member by ID' };
@@ -145,16 +166,19 @@ We're glad to have you join us. Welcome!`;
                                 roleId: Env.verifyRoleID,
                                 guestRoleId: Env.guestRoleID,
                                 decodedToken,
-                                ratingRole
-                            }
+                                ratingRole,
+                            },
                         }
                     );
+                    Logger.info(`verifyUser broadcastEval result: ${JSON.stringify(resOps)}`);
                     if (resOps[0].success) {
                         // User verify success
                         // Store in db
                         try {
                             const m: any = resOps[0].member;
-                            const isValidTC = (m.nickname || m.user.username).toLowerCase() === decodedToken.nickname.toLowerCase();
+                            const isValidTC =
+                                (m.nickname || m.user.username).toLowerCase() ===
+                                decodedToken.nickname.toLowerCase();
                             await db.Member.create({
                                 id: m.user.id,
                                 username: m.user.username,
@@ -162,8 +186,8 @@ We're glad to have you join us. Welcome!`;
                                 nickname: m.nickname,
                                 tcHandle: decodedToken.nickname,
                                 verifiedDate: new Date(),
-                                discordValidTC: isValidTC
-                            })
+                                discordValidTC: isValidTC,
+                            });
                             // finally redirect user back to discrod
                             res.redirect(Env.verifySuccessRedirect);
                         } catch (e) {
@@ -173,6 +197,7 @@ We're glad to have you join us. Welcome!`;
                 }
             });
         } catch (e) {
+            Logger.error('verify user error:', JSON.stringify(e));
             res.status(500).json(e);
             throw e;
         }
@@ -182,7 +207,7 @@ We're glad to have you join us. Welcome!`;
     private async registerCommands(req: any, res: Response): Promise<void> {
         // check permissions to do this op
         if (!intersection(req.authUser.roles, Config.DiscordManagePermissionRoles).length) {
-            res.status(403).json({ error: 'Missing needed roles for this op.' })
+            res.status(403).json({ error: 'Missing needed roles for this op.' });
             return;
         }
         // Commands
@@ -215,7 +240,7 @@ We're glad to have you join us. Welcome!`;
     private async getMembers(req: any, res: Response): Promise<void> {
         // check permissions to do this op
         if (!intersection(req.authUser.roles, Config.DiscordManagePermissionRoles).length) {
-            res.status(403).json({ error: 'Missing needed roles for this op.' })
+            res.status(403).json({ error: 'Missing needed roles for this op.' });
             return;
         }
         try {
