@@ -19,4 +19,4 @@ RUN npm run build
 EXPOSE 8081
 
 # Run the application
-CMD [ "npm", "run", "start:shard" ]
+CMD [ "node", "--enable-source-maps", "dist/app.js" ]
