@@ -9,10 +9,11 @@ install_dependency: &install_dependency
 install_deploysuite: &install_deploysuite
   name: Installation of install_deploysuite.
   command: |
-    git clone --branch v1.4.15 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+    git clone --branch v1.4.17 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
     cp ./../buildscript/master_deploy.sh .
     cp ./../buildscript/buildenv.sh .
     cp ./../buildscript/awsconfiguration.sh .
+    cp ./../buildscript/psvar-processor.sh .
 restore_cache_settings_for_build: &restore_cache_settings_for_build
   key: docker-node-modules-{{ checksum "package-lock.json" }}
 
@@ -34,9 +35,12 @@ builddeploy_steps: &builddeploy_steps
       command: |
         ./awsconfiguration.sh $DEPLOY_ENV
         source awsenvconf
-        ./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-deployvar
-        source buildenvvar
-        ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME} -p FARGATE
+        #./buildenv.sh -e $DEPLOY_ENV -b ${LOGICAL_ENV}-${APPNAME}-deployvar
+        ./psvar-processor.sh -t appenv -p /config/${APPNAME}/deployvar
+        #source buildenvvar
+        #./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -s ${LOGICAL_ENV}-global-appvar,${LOGICAL_ENV}-${APPNAME}-appvar -i ${APPNAME} -p FARGATE
+        source deployvar_env
+        ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/common/global-appvar,/config/${APPNAME}/appvar -i ${APPNAME} -p FARGATE
         
 jobs:
   # Build & Deploy against development backend
