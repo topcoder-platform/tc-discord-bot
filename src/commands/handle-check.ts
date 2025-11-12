@@ -33,7 +33,7 @@ export class HandleCheckCommand implements Command {
 
         let username = intr.options.getString('username');
         const https = new HttpService();
-        const apiRsp = await https.get(`https://api.topcoder.com/v5/members/${username}`, '');
+        const apiRsp = await https.get(`https://api.topcoder.com/v6/members/${username}`, '');
         const apiData: any = await apiRsp.json();
 
         if (apiRsp.status !== 200) {
