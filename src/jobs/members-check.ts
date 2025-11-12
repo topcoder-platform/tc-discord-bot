@@ -52,7 +52,7 @@ export class MembersCheckJob implements Job {
                         // get member info from TC members API
                         const tcAPI: any = await this.httpService
                             .get(
-                                `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${dbM.tcHandle}`,
+                                `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v6/members/${dbM.tcHandle}`,
                                 ''
                             )
                             .then(r => r.json());

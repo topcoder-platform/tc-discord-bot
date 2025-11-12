@@ -101,7 +101,7 @@ export class RootController implements Controller {
                     const https = new HttpService();
                     const tcAPI: any = await https
                         .get(
-                            `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v5/members/${decodedToken.nickname}`,
+                            `https://api.topcoder${Env.nodeEnv === 'development' ? '-dev' : ''}.com/v6/members/${decodedToken.nickname}`,
                             ''
                         )
                         .then(r => r.json());
