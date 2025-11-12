@@ -170,7 +170,6 @@ We're glad to have you join us. Welcome!`;
                             },
                         }
                     );
-                    Logger.info(`verifyUser broadcastEval result: ${JSON.stringify(resOps)}`);
                     if (resOps[0].success) {
                         // User verify success
                         // Store in db
