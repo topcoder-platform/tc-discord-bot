@@ -47,6 +47,13 @@ export class MembersCheckJob implements Job {
                 try {
                     // get member record from db
                     const dbM = await db.Member.findByPk(userId);
+
+                    if (dbM) {
+                        Logger.info(`Processing member ${userId} -> TC handle ${dbM.tcHandle}`);
+                    } else {
+                        Logger.warn(`Verified member ${userId} missing DB record; enforcing re-verification`);
+                    }
+
                     if (dbM) {
                         // there is record for this member in our db
                         // get member info from TC members API
@@ -56,6 +63,9 @@ export class MembersCheckJob implements Job {
                                 ''
                             )
                             .then(r => r.json());
+
+                        Logger.info(`Fetched TC API data for member ${dbM.tcHandle}: ${JSON.stringify(tcAPI)}`);
+
                         // prepare rating role that should be set to this member
                         // set all to gray rated by default
                         let ratingRole = Env.grayRatedRoleID;
