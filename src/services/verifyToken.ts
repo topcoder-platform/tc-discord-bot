@@ -1,62 +1,29 @@
-import jwt from 'jsonwebtoken';
-import jwksRSA from 'jwks-rsa';
+import { auth, Principal } from 'tc-core-library-js';
+import { Env } from './env';
 
-const jwksClients = {}; // in global scope
+const validator = auth.createValidator({ AUTH_SECRET: Env.authSecret, VALID_ISSUERS: Env.validIssuers });
+
+/** Verified Topcoder member accepted for Discord account linking. */
+export type VerifiedMember = Principal & { kind: 'user'; handle: string };
 
 /**
- * Verify is jwt token is TC valid token or fake
- * @param token The TC jwt to verify
- * @param validIssuers Array of sign urls strings
- * @param callback function to invoke with result
+ * Validate a Topcoder member token for Discord account linking through shared core.
+ * @param token Raw token from the login callback; arrays/objects are rejected.
+ * @returns A normalized member with a numeric ID and nonempty verified handle.
+ * @throws Sanitized Error for invalid tokens, missing member claims, or service tokens.
+ * Service credentials cannot be linked to a Discord member, regardless of scopes.
  */
-export function verifyToken(token: any, validIssuers: string, callback: any): void {
-    // Decode it first
-    let decodedToken: any = jwt.decode(token, { complete: true });
-
-    // Check if it's HS or RS
-
-    if (decodedToken && decodedToken.header) {
-        if (decodedToken.header.alg === 'RS256') {
-            if (validIssuers.indexOf(decodedToken.payload.iss) === -1) {
-                callback(new Error('Invalid token issuer.'));
-            } else {
-                // Get the key id (kid)
-                let kid = decodedToken.header.kid;
-                // Get the public cert for verification then verify
-                if (!jwksClients[decodedToken.payload.iss]) {
-                    jwksClients[decodedToken.payload.iss] = jwksRSA({
-                        cache: true,
-                        cacheMaxEntries: 5, // Default value
-                        cacheMaxAge: 0, // undefined/0 means infinte
-                        jwksUri: decodedToken.payload.iss + '.well-known/jwks.json',
-                    });
-                }
-                jwksClients[decodedToken.payload.iss].getSigningKey(kid, (err, key) => {
-                    if (err) {
-                        callback(new Error('Invalid Token.' + err));
-                    } else {
-                        jwtVerify(token, key.publicKey, callback);
-                    }
-                });
-            }
-        }
-    } else {
-        callback(new Error('Invalid Token.'));
-    }
-};
-
-const jwtVerify = (token, secretOrCert, callback) => {
+export async function verifyToken(token: unknown): Promise<VerifiedMember> {
     try {
-        // verifies secret and checks exp
-        jwt.verify(token, secretOrCert, (err, decoded) => {
-            if (err) {
-                callback(new Error('Failed to authenticate token.'));
-            } else {
-                // token verified - no error
-                callback(undefined, decoded);
-            }
-        });
-    } catch (e) {
-        callback(new Error('Error in jwtVerify: ' + e.message));
+        if (typeof token !== 'string') {
+            throw new Error('Invalid token');
+        }
+        const principal = await validator.verify(token);
+        if (principal.kind !== 'user' || typeof principal.handle !== 'string' || !principal.handle.trim()) {
+            throw new Error('Member required');
+        }
+        return principal as VerifiedMember;
+    } catch {
+        throw new Error('Invalid or expired member token');
     }
-};
+}

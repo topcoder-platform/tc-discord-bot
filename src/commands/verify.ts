@@ -28,7 +28,7 @@ export class VerifyCommand implements Command {
     public async execute(intr: CommandInteraction, data: EventData): Promise<void> {
         // Exclude bots from verify
         if (intr.user.bot) {
-            await MessageUtils.sendIntr(intr, "Bots can't verify");
+            await MessageUtils.sendIntr(intr, 'Bots can\'t verify');
             return;
         }
         // Check if member alredy verified?

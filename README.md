@@ -96,3 +96,28 @@ For questions, proposals and ideas feel free to contact the team behind this bot
 
 - [@kkartunov](https://github.com/kkartunov)
 - [@hokienick](https://github.com/hokienick)
+
+## Keycloak validation branch
+
+`keycloak_m2M` pins shared core 4.0.0-keycloak.0 at
+`c262f4aca971904f308085bdeaaed35cdf3cfa7d`. Before rollout configure
+`M2M_PROVIDER=keycloak`, `KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`, and the managed
+HTTPS `KEYCLOAK_TOKEN_URL`. This bot does not generate Topcoder M2M tokens; no
+Keycloak client secret is needed for validation alone. Shared core handles
+issuer/audience/time/signature validation and normalized principals consistently.
+
+Discord linking requires a member with a positive numeric `userId` and verified
+`handle` claim (including supported Topcoder namespaced claims). A nickname-only
+profile token and every service token are rejected. Configure existing member
+trust with `AUTH_SECRET`, `VALID_ISSUERS` as a JSON array and
+`AUTH_USER_AUDIENCES` as a JSON array (or explicit
+`ALLOW_LEGACY_USER_AUDIENCE=true` for legacy audience compatibility). Existing
+Auth0 member sign-in URLs and Discord state JWTs are retained. Management routes
+still require configured member roles; service principals cannot supply roles.
+
+The callback now awaits verification, uses the normalized handle, and sanitizes
+failures instead of logging decoded token claims. Issuer matching/JWKS caching
+are delegated to shared core rather than substring checks or indefinite caches.
+CI deployment filters exclude this branch; no bot or application is deployed.
+Validate with `nvm use`, `npm run lint`, `npm run build`, and `npm test`.
+Tests use signed fixtures without Discord calls, role updates or direct messages.
