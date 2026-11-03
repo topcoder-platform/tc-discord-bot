@@ -19,4 +19,6 @@ RUN npm run build
 EXPOSE 8081
 
 # Run the application
+RUN chown -R node:node /tc-discord-bot
+USER node
 CMD [ "node", "--enable-source-maps", "dist/app.js" ]

@@ -130,3 +130,7 @@ ec_app_var_DEV.json
 ec_app_var.json
 
 scripts/
+
+# Infrastructure definitions and detailed AWS inventories are maintained privately.
+/deploy/iam/
+/deploy/*-baseline.json
