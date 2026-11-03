@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "environment": "prod",
+  "accountId": "409275337247",
+  "region": "us-east-1",
+  "deployRoleArn": "arn:aws:iam::409275337247:role/tc-discord-bot-prod-deploy",
+  "taskRoleArn": null,
+  "executionRoleArn": "arn:aws:iam::409275337247:role/ecsTaskExecutionRole",
+  "cluster": "tc-discord-bot-serverless",
+  "service": "tc-discord-bot",
+  "taskFamily": "tc-discord-bot",
+  "circleciOrgId": "947bef5e-1669-415d-b83c-4fc85155b7df",
+  "circleciProjectId": "2426765c-02ee-4e8c-b4ed-e0c6348fe042",
+  "repository": "github.com/topcoder-platform/tc-discord-bot",
+  "branch": "master",
+  "images": {
+    "tc-discord-bot": "tc-discord-bot"
+  }
+}
